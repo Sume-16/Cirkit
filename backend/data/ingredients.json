@@ -1,0 +1,162 @@
+{
+  "Basmati rice": {
+    "unit": "kg",
+    "stock": 30,
+    "pack": 25,
+    "price": 95,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Sona masoori rice": {
+    "unit": "kg",
+    "stock": 45,
+    "pack": 25,
+    "price": 52,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Wheat flour": {
+    "unit": "kg",
+    "stock": 10,
+    "pack": 10,
+    "price": 38,
+    "shelf_days": 60,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Toor dal": {
+    "unit": "kg",
+    "stock": 6,
+    "pack": 5,
+    "price": 140,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Moong dal": {
+    "unit": "kg",
+    "stock": 5,
+    "pack": 5,
+    "price": 125,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Onion": {
+    "unit": "kg",
+    "stock": 12,
+    "pack": 10,
+    "price": 30,
+    "shelf_days": 10,
+    "vendor": "Ramesh (Bowenpally mandi)"
+  },
+  "Tomato": {
+    "unit": "kg",
+    "stock": 4,
+    "pack": 5,
+    "price": 28,
+    "shelf_days": 4,
+    "vendor": "Ramesh (Bowenpally mandi)"
+  },
+  "Potato": {
+    "unit": "kg",
+    "stock": 8,
+    "pack": 10,
+    "price": 25,
+    "shelf_days": 14,
+    "vendor": "Ramesh (Bowenpally mandi)"
+  },
+  "Mixed vegetables": {
+    "unit": "kg",
+    "stock": 6,
+    "pack": 5,
+    "price": 40,
+    "shelf_days": 3,
+    "vendor": "Ramesh (Bowenpally mandi)"
+  },
+  "Green chilli": {
+    "unit": "kg",
+    "stock": 1,
+    "pack": 1,
+    "price": 60,
+    "shelf_days": 5,
+    "vendor": "Ramesh (Bowenpally mandi)"
+  },
+  "Ginger-garlic paste": {
+    "unit": "kg",
+    "stock": 2,
+    "pack": 1,
+    "price": 160,
+    "shelf_days": 30,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Coriander & mint": {
+    "unit": "kg",
+    "stock": 0.5,
+    "pack": 1,
+    "price": 80,
+    "shelf_days": 2,
+    "vendor": "Ramesh (Bowenpally mandi)"
+  },
+  "Curd": {
+    "unit": "kg",
+    "stock": 3,
+    "pack": 5,
+    "price": 60,
+    "shelf_days": 3,
+    "vendor": "Vijaya Dairy"
+  },
+  "Milk": {
+    "unit": "L",
+    "stock": 0,
+    "pack": 5,
+    "price": 56,
+    "shelf_days": 2,
+    "vendor": "Vijaya Dairy"
+  },
+  "Sugar": {
+    "unit": "kg",
+    "stock": 6,
+    "pack": 5,
+    "price": 44,
+    "shelf_days": 365,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Cooking oil": {
+    "unit": "L",
+    "stock": 8,
+    "pack": 5,
+    "price": 150,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Ghee": {
+    "unit": "kg",
+    "stock": 1.5,
+    "pack": 1,
+    "price": 600,
+    "shelf_days": 120,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Biryani masala": {
+    "unit": "kg",
+    "stock": 0.3,
+    "pack": 0.5,
+    "price": 700,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Sambar powder": {
+    "unit": "kg",
+    "stock": 0.4,
+    "pack": 0.5,
+    "price": 400,
+    "shelf_days": 180,
+    "vendor": "Sri Lakshmi Traders"
+  },
+  "Salt": {
+    "unit": "kg",
+    "stock": 5,
+    "pack": 5,
+    "price": 20,
+    "shelf_days": 365,
+    "vendor": "Sri Lakshmi Traders"
+  }
+}

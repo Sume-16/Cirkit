@@ -1,0 +1,83 @@
+{
+  "Veg biryani": {
+    "emoji": "🍛",
+    "usual": 100,
+    "bom": {
+      "Basmati rice": 0.12,
+      "Mixed vegetables": 0.08,
+      "Onion": 0.05,
+      "Tomato": 0.03,
+      "Curd": 0.02,
+      "Cooking oil": 0.012,
+      "Ghee": 0.005,
+      "Biryani masala": 0.004,
+      "Ginger-garlic paste": 0.004,
+      "Coriander & mint": 0.005,
+      "Salt": 0.003,
+      "Green chilli": 0.003
+    }
+  },
+  "Sambar rice": {
+    "emoji": "🍲",
+    "usual": 85,
+    "bom": {
+      "Sona masoori rice": 0.12,
+      "Toor dal": 0.04,
+      "Mixed vegetables": 0.06,
+      "Tomato": 0.02,
+      "Onion": 0.02,
+      "Sambar powder": 0.006,
+      "Cooking oil": 0.006,
+      "Salt": 0.003
+    }
+  },
+  "Chapati & dal": {
+    "emoji": "🫓",
+    "usual": 85,
+    "bom": {
+      "Wheat flour": 0.1,
+      "Moong dal": 0.04,
+      "Onion": 0.02,
+      "Tomato": 0.02,
+      "Cooking oil": 0.008,
+      "Ghee": 0.003,
+      "Salt": 0.003,
+      "Green chilli": 0.002
+    }
+  },
+  "Curd rice": {
+    "emoji": "🍚",
+    "usual": 50,
+    "bom": {
+      "Sona masoori rice": 0.1,
+      "Curd": 0.12,
+      "Green chilli": 0.002,
+      "Salt": 0.002,
+      "Cooking oil": 0.003
+    }
+  },
+  "Aloo veg curry": {
+    "emoji": "🥔",
+    "usual": 50,
+    "bom": {
+      "Potato": 0.1,
+      "Mixed vegetables": 0.05,
+      "Onion": 0.03,
+      "Tomato": 0.03,
+      "Cooking oil": 0.01,
+      "Ginger-garlic paste": 0.003,
+      "Salt": 0.002,
+      "Coriander & mint": 0.003
+    }
+  },
+  "Payasam": {
+    "emoji": "🥣",
+    "usual": 42,
+    "bom": {
+      "Milk": 0.12,
+      "Sugar": 0.025,
+      "Sona masoori rice": 0.015,
+      "Ghee": 0.004
+    }
+  }
+}

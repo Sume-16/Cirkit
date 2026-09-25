@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CirKit · Demand planner</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --pink: #FCEEF1; --pink-deep: #F4D3DC; --basil: #4F7A4A; --basil-dark: #3A5E36; --basil-soft: #DCEBD5;
+    --soil: #5C4033; --soil-soft: #EFE3D6; --ink: #2B211C; --muted: #7A6A62; --card: #FFFBFA;
+    --marigold: #FFE1B3; --marigold-ink: #8A5A00; --ice: #DCEAF7; --ice-ink: #2F5C86; --berry: #B84A62;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Nunito", system-ui, sans-serif; background: var(--pink); color: var(--ink); line-height: 1.5; }
+  main { max-width: 1180px; margin: 0 auto; padding: 22px 18px 60px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 52px; height: 52px; border-radius: 16px; background: var(--basil); display: grid; place-items: center; font-size: 28px; box-shadow: 0 4px 0 var(--basil-dark); }
+  h1 { margin: 0; font-size: 2rem; font-weight: 900; color: var(--soil); letter-spacing: -0.02em; }
+  .sub { margin: 0; color: var(--muted); font-weight: 600; }
+  .status { background: var(--card); border: 2px solid var(--pink-deep); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 0.9rem; display: flex; gap: 8px; align-items: center; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #bbb; }
+  .dot.on { background: var(--basil); } .dot.off { background: var(--berry); }
+  .card { background: var(--card); border: 2px solid var(--pink-deep); border-radius: 22px; padding: 18px; margin-top: 18px; }
+  h2 { margin: 0 0 12px; font-size: 1.2rem; font-weight: 800; color: var(--soil); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .stat { background: var(--basil-soft); border-radius: 18px; padding: 12px 14px; }
+  .stat .v { font-size: 1.6rem; font-weight: 900; color: var(--basil-dark); }
+  .stat .l { font-size: 0.85rem; color: var(--basil-dark); font-weight: 700; }
+  /* rolling queue */
+  .queue { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; }
+  .chip { min-width: 96px; border-radius: 18px; padding: 10px; background: #fff; border: 2px solid var(--soil-soft); text-align: center; flex-shrink: 0; }
+  .chip .d { font-weight: 900; color: var(--soil); }
+  .chip .w { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+  .chip .f { font-weight: 800; margin-top: 4px; }
+  .chip .x { font-size: 0.75rem; color: var(--muted); }
+  .chip.next { border: 2px dashed var(--basil); background: var(--basil-soft); }
+  .chip.new { animation: pop .6s ease-out; border-color: var(--basil); }
+  @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .chip.new, .trace li { animation: none; } }
+  .tag { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: 0.75rem; font-weight: 800; margin-top: 4px; }
+  .normal { background: var(--basil-soft); color: var(--basil-dark); }
+  .weekend { background: var(--soil-soft); color: var(--soil); }
+  .festival { background: var(--marigold); color: var(--marigold-ink); }
+  .exam { background: var(--ice); color: var(--ice-ink); }
+  .holiday { background: var(--pink-deep); color: var(--berry); }
+  .qnote { color: var(--muted); font-weight: 600; font-size: 0.92rem; margin: 6px 0 0; }
+  /* actions */
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; font-weight: 800; border: 0; border-radius: 14px; padding: 11px 18px; cursor: pointer; background: var(--basil); color: #fff; box-shadow: 0 3px 0 var(--basil-dark); }
+  button.soil { background: var(--soil); box-shadow: 0 3px 0 #3E2A20; }
+  button.ghost { background: var(--soil-soft); color: var(--soil); box-shadow: none; }
+  button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: 0.9fr 1.3fr; gap: 18px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 1.6rem; } }
+  .grid > .card { margin-top: 0; }
+  .trace { list-style: none; margin: 0; padding: 0; }
+  .trace li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--pink-deep); animation: slide .35s ease-out; }
+  .trace .ic { font-size: 1.2rem; width: 28px; flex-shrink: 0; text-align: center; }
+  .trace .ag { font-weight: 900; color: var(--basil-dark); font-size: 0.82rem; display: block; }
+  @keyframes slide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .empty { color: var(--muted); font-weight: 600; }
+  .big { font-size: 3rem; font-weight: 900; color: var(--soil); line-height: 1; }
+  .dishes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+  .dish { background: var(--pink); border-radius: 18px; padding: 12px; }
+  .dish .e { font-size: 1.6rem; }
+  .dish .n { font-weight: 800; }
+  .dish .c { font-size: 1.4rem; font-weight: 900; color: var(--basil-dark); }
+  .dish .u { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--soil-soft); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 800; }
+  .st { border-radius: 999px; padding: 2px 9px; font-weight: 800; font-size: 0.78rem; }
+  .st.ok { background: var(--basil-soft); color: var(--basil-dark); }
+  .st.fresh { background: var(--pink-deep); color: var(--berry); }
+  .st.bulk { background: var(--marigold); color: var(--marigold-ink); }
+  .st.short { background: var(--berry); color: #fff; }
+  .msg { background: var(--basil-soft); border-radius: 14px; padding: 10px 12px; margin: 8px 0; font-size: 0.92rem; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .box { border-radius: 18px; padding: 12px; }
+  .box.ours { background: var(--basil-soft); color: var(--basil-dark); }
+  .box.usual { background: var(--soil-soft); color: var(--soil); }
+  .box .v { font-size: 1.5rem; font-weight: 900; }
+  footer { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; color: var(--muted); font-weight: 700; }
+  input { font: inherit; padding: 9px 12px; border-radius: 12px; border: 2px solid var(--pink-deep); background: #fff; }
+  .err { color: var(--berry); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🌿</div>
+      <div><h1>CirKit</h1><p class="sub">Pillar 1 · Demand planner for food institutions</p></div>
+    </div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">Waking up the agents…</span></div>
+  </header>
+
+  <section class="card">
+    <h2>Impact so far</h2>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="card">
+    <h2>Rolling 10-day memory (first in, first out)</h2>
+    <div class="queue" id="queue"></div>
+    <p class="qnote" id="qnote"></p>
+    <canvas id="chart" height="80" style="margin-top:10px"></canvas>
+  </section>
+
+  <section class="card">
+    <div class="actions">
+      <button id="runBtn">1 · Run planning agents</button>
+      <button id="approveBtn" class="soil" disabled>2 · Approve purchase order</button>
+      <button id="closeBtn" class="ghost" disabled>3 · Close the day and roll the window</button>
+    </div>
+    <label class="qnote" style="display:flex;gap:8px;align-items:center;margin-top:10px;cursor:pointer">
+      <input type="checkbox" id="stress"> Stress test: make the first forecast wrong and watch the critic agent send it back
+    </label>
+  </section>
+
+  <div class="grid" style="margin-top:18px">
+    <section class="card">
+      <h2>Agents at work</h2>
+      <ul class="trace" id="trace"><li class="empty" style="animation:none">Press "Run planning agents" to watch them think.</li></ul>
+    </section>
+    <section class="card" id="planCard"><h2>Today's plan</h2><p class="empty">The cooking and buying plan will appear here.</p></section>
+  </div>
+
+  <section class="card" id="outcomeCard" hidden></section>
+
+  <footer>
+    <label for="apiInput">Backend</label><input id="apiInput" size="34">
+    <button class="ghost" id="saveApi">Connect</button>
+    <button class="ghost" id="resetBtn">Reset demo</button>
+  </footer>
+</main>
+
+<script>
+const DEFAULT_API = "https://YOUR-APP.onrender.com"; // paste your Render URL here after deploying
+const local = ["localhost", "127.0.0.1", ""].includes(location.hostname);
+let API = localStorage.getItem("cirkit_api") || (local ? "http://localhost:8000" : DEFAULT_API);
+let chart = null, lastAdded = null;
+const $ = id => document.getElementById(id);
+const rs = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const fmt = d => new Date(d + "T00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+const wk = d => new Date(d + "T00:00").toLocaleDateString("en-IN", { weekday: "short" });
+const LABEL_COLOR = { normal: "#9CC48F", weekend: "#C9A98E", festival: "#F2B45C", exam: "#8DB6DE", holiday: "#E79AB0" };
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...opts });
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail || r.statusText);
+  return body;
+}
+
+async function load() {
+  $("apiInput").value = API;
+  try {
+    const s = await api("/api/state");
+    $("dot").className = "dot on"; $("statusText").textContent = "Agents online";
+    renderStats(s); renderQueue(s); renderChart(s.window);
+    if (s.plan) renderPlan(s.plan);
+    $("runBtn").textContent = `1 · Run planning agents for ${fmt(s.next_date)}`;
+    $("runBtn").disabled = !s.has_future;
+    $("approveBtn").disabled = !s.plan || s.approved;
+    $("closeBtn").disabled = !s.plan;
+    return s;
+  } catch (e) {
+    $("dot").className = "dot off";
+    $("statusText").textContent = "Backend offline · free servers need ~1 min to wake";
+  }
+}
+
+function renderStats(s) {
+  const h = s.history, i = s.impact;
+  const acc = h.length ? (100 - h.reduce((a, x) => a + Math.abs(x.actual - x.forecast) / x.actual * 100, 0) / h.length).toFixed(1) + "%" : "—";
+  $("stats").innerHTML = [[i.days, "Days planned"], [i.portions_saved, "Portions not wasted"],
+    [i.stockouts_avoided, "Sold-outs avoided"], [rs(i.money_saved), "Waste cost saved"], [acc, "Forecast accuracy"]]
+    .map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+}
+
+function renderQueue(s) {
+  const chips = s.window.map(r => `<div class="chip ${r.date === lastAdded ? "new" : ""}">
+      <div class="d">${fmt(r.date)}</div><div class="w">${wk(r.date)}</div>
+      <span class="tag ${r.label}">${r.label}</span>
+      <div class="f">${r.footfall} 🧑‍🎓</div>
+      <div class="x">${r.leftover} left · ${r.stockouts} sold out</div></div>`).join("");
+  const next = s.has_future ? `<div class="chip next"><div class="d">${fmt(s.next_date)}</div><div class="w">${wk(s.next_date)} · next</div>
+      <span class="tag ${s.next.label}">${s.next.label}</span><div class="f">?</div><div class="x">to predict</div></div>` : "";
+  $("queue").innerHTML = chips + next;
+  $("queue").scrollLeft = $("queue").scrollWidth;
+  $("qnote").textContent = s.has_future
+    ? `Learning from ${fmt(s.window[0].date)}–${fmt(s.window.at(-1).date)} to predict ${fmt(s.next_date)}${s.next.note ? " · " + s.next.note : ""}.`
+    : "End of demo month. Press Reset demo to start again.";
+}
+
+function renderChart(w) {
+  if (chart) chart.destroy();
+  chart = new Chart($("chart"), {
+    data: { labels: w.map(r => fmt(r.date)), datasets: [
+      { type: "bar", label: "Customers", data: w.map(r => r.footfall), backgroundColor: w.map(r => LABEL_COLOR[r.label]), borderRadius: 8 },
+      { type: "line", label: "Portions left over", data: w.map(r => r.leftover), borderColor: "#B84A62", backgroundColor: "#B84A62", tension: .35 } ] },
+    options: { plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+$("runBtn").onclick = () => {
+  $("runBtn").disabled = true; $("approveBtn").disabled = true; $("closeBtn").disabled = true;
+  $("trace").innerHTML = ""; $("outcomeCard").hidden = true;
+  $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="empty">Agents are planning…</p>';
+  const es = new EventSource(API + "/api/plan/stream" + ($("stress").checked ? "?stress=true" : ""));
+  es.onmessage = m => {
+    const ev = JSON.parse(m.data);
+    if (ev.type === "step") {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="ic" aria-hidden="true">${ev.icon}</span><span><span class="ag">${ev.agent} agent</span>${ev.msg}</span>`;
+      $("trace").appendChild(li);
+    } else if (ev.type === "result") renderPlan(ev.plan);
+    else if (ev.type === "error") $("planCard").innerHTML = `<h2>Today's plan</h2><p class="err">${ev.msg}</p>`;
+    else if (ev.type === "done") { es.close(); load(); }
+  };
+  es.onerror = () => { es.close(); $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="err">Lost connection to the agents.</p>'; load(); };
+};
+
+function statusClass(s) { return s === "Short today" ? "short" : s === "Buy fresh" ? "fresh" : s === "Reorder bulk" ? "bulk" : "ok"; }
+
+function renderPlan(p) {
+  const dishes = Object.entries(p.dishes).map(([n, d]) => `<div class="dish"><div class="e">${d.emoji}</div>
+      <div class="n">${n}</div><div class="c">${d.cook} <small>portions</small></div>
+      <div class="u">usual ${d.usual} · ${d.why}</div></div>`).join("");
+  const rows = [...p.ingredients].sort((a, b) => b.order - a.order).map(l => `<tr><td>${l.item}</td>
+      <td>${l.need} ${l.unit}</td><td>${l.stock} ${l.unit}</td>
+      <td><span class="st ${statusClass(l.status)}">${l.status}</span></td>
+      <td><b>${l.order ? l.order + " " + l.unit : "—"}</b></td><td>${l.cost ? rs(l.cost) : "—"}</td></tr>`).join("");
+  $("planCard").innerHTML = `<h2>Plan for ${fmt(p.date)} <span class="tag ${p.label}">${p.label}</span></h2>
+    <div><span class="big">${p.footfall}</span> <b>customers expected</b></div>
+    <p class="qnote">Decided by ${p.context_source}: ${p.context_reason} · learning correction x${p.bias} · ${p.attempts} attempt${p.attempts > 1 ? "s (critic sent it back)" : " (critic approved)"}${p.flagged ? " · ⚠️ flagged for the manager" : ""}</p>
+    <div class="dishes">${dishes}</div>
+    <h2>Raw ingredients</h2>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Need today</th><th>In stock</th><th>Status</th><th>Order</th><th>Cost</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p><b>Purchase order: ${rs(p.order_total)}</b></p><div id="vendorMsgs"></div>`;
+}
+
+$("approveBtn").onclick = async () => {
+  $("approveBtn").disabled = true;
+  try {
+    const r = await api("/api/order/approve", { method: "POST" });
+    $("vendorMsgs").innerHTML = r.messages.length
+      ? "<h2>Messages sent to vendors</h2>" + r.messages.map(m => `<div class="msg"><b>${m.vendor}</b><br>${m.message}</div>`).join("")
+      : '<p class="empty">Nothing to buy today. Stock covers everything.</p>';
+  } catch (e) { $("vendorMsgs").innerHTML = `<p class="err">${e.message}</p>`; $("approveBtn").disabled = false; }
+};
+
+$("closeBtn").onclick = async () => {
+  $("closeBtn").disabled = true;
+  try {
+    const r = await api("/api/day/close", { method: "POST" });
+    lastAdded = r.queue.added;
+    const dishRows = Object.entries(r.dishes).map(([n, d]) => `<tr><td>${n}</td><td>${d.prepared}</td><td>${d.sold}</td>
+        <td>${d.leftover}</td><td>${d.stockout ? `<span class="st short">sold out (${d.missed} missed)</span>` : '<span class="st ok">enough</span>'}</td></tr>`).join("");
+    $("outcomeCard").hidden = false;
+    $("outcomeCard").innerHTML = `<h2>How ${fmt(r.date)} actually went</h2>
+      <p><b>Forecast ${r.footfall_forecast} · actual ${r.footfall_actual} customers</b> (${r.error_pct > 0 ? "+" : ""}${r.error_pct}% off)</p>
+      <div class="compare">
+        <div class="box ours"><div>With CirKit</div><div class="v">${r.ours.leftover} left over</div><div>${r.ours.stockouts.length} dish(es) sold out</div></div>
+        <div class="box usual"><div>Usual habits</div><div class="v">${r.usual.leftover} left over</div><div>${r.usual.stockouts.length} dish(es) sold out</div></div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Dish</th><th>Cooked</th><th>Sold</th><th>Left over</th><th>Status</th></tr></thead><tbody>${dishRows}</tbody></table></div>
+      <p class="qnote">🗂️ Queue rolled: ${r.queue.dropped ? fmt(r.queue.dropped) + " dropped out, " : ""}${fmt(r.queue.added)} added. Window is now ${fmt(r.queue.window[0])}–${fmt(r.queue.window[1])}.</p>
+      <p class="qnote">🤝 ${r.surplus_for_redistribution} surplus portions handed to Pillar 3 (redistribution to NGOs).</p>`;
+    $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="empty">Day closed. Run the agents for the next day.</p>';
+    $("trace").innerHTML = '<li class="empty" style="animation:none">New data added to memory. Ready to plan the next day.</li>';
+    await load();
+    $("outcomeCard").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { alert(e.message); load(); }
+};
+
+$("saveApi").onclick = () => { API = $("apiInput").value.trim().replace(/\/$/, ""); localStorage.setItem("cirkit_api", API); load(); };
+$("resetBtn").onclick = async () => {
+  if (!confirm("Reset the demo to 1–10 September?")) return;
+  await api("/api/reset", { method: "POST" }); lastAdded = null;
+  $("trace").innerHTML = '<li class="empty" style="animation:none">Press "Run planning agents" to watch them think.</li>';
+  $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="empty">The cooking and buying plan will appear here.</p>';
+  $("outcomeCard").hidden = true; load();
+};
+load();
+</script>
+</body>
+</html>
