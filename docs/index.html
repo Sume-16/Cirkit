@@ -143,7 +143,7 @@
 </main>
 
 <script>
-const DEFAULT_API = "https://cirkit-e9gr.onrender.com/"; // paste your Render URL here after deploying
+const DEFAULT_API = "https://cirkit-e9gr.onrender.com"; // paste your Render URL here after deploying
 const local = ["localhost", "127.0.0.1", ""].includes(location.hostname);
 let API = localStorage.getItem("cirkit_api") || (local ? "http://localhost:8000" : DEFAULT_API);
 let chart = null, lastAdded = null;
