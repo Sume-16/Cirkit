@@ -1,0 +1,54 @@
+{
+  "_about": "Pillar 3 redistribution assumptions. FSSAI-guided, NOT FSSAI-certified: safe-holding times for cooked food are conservative demo assumptions (hot-held at 60 °C or above, chilled at 5 °C or below, room temperature about 2 hours). Used cooking oil goes to a biodiesel collector as guided by FSSAI's RUCO initiative. ALL organisations are mock and ALL phone numbers are demo numbers. Routes are estimated (haversine x 1.3 road factor, 20 km/h average city speed); real road routing (OSRM) is on the roadmap.",
+  "kitchen": {"name": "Our canteen (demo)", "area": "Meerpet", "lat": 17.3200, "lon": 78.5300},
+  "rules": {
+    "storage": {
+      "hot":     {"label": "Kept hot (60 °C or above)", "safe_hours": 6},
+      "chilled": {"label": "Chilled (5 °C or below)", "safe_hours": 24},
+      "room":    {"label": "Room temperature", "safe_hours": 2}
+    },
+    "min_donate_minutes": 45,
+    "serve_buffer_minutes": 15,
+    "max_transit_minutes": 45,
+    "optimise_slack_km": 1.0,
+    "animal_feed_max_hours": 12,
+    "road_factor": 1.3,
+    "city_speed_kmph": 20,
+    "dispatch_minutes": 10,
+    "portion_kg": 0.3,
+    "oil_kg_per_litre": 0.92,
+    "oil_min_litres": 5,
+    "follow_up_minutes": 10,
+    "max_attempts": 3
+  },
+  "institution_types": {"canteen": "Canteen", "restaurant": "Restaurant", "cafeteria": "Cafeteria", "catering": "Catering service", "shelter": "Food shelter"},
+  "recycle_kinds": {
+    "veg_scraps":   {"label": "Veg peels & scraps", "ladder": ["animal_feed", "compost", "biogas"]},
+    "cooked_unfit": {"label": "Cooked leftovers not fit for people", "ladder": ["animal_feed", "biogas"]},
+    "plate_waste":  {"label": "Plate waste", "ladder": ["biogas"]},
+    "used_oil":     {"label": "Used cooking oil", "ladder": ["biodiesel"]}
+  },
+  "destinations": {
+    "ngo":         {"label": "People (NGO)", "emoji": "🤝"},
+    "animal_feed": {"label": "Animal feed", "emoji": "🐄"},
+    "biogas":      {"label": "Biogas", "emoji": "🔥"},
+    "compost":     {"label": "Compost", "emoji": "🌱"},
+    "biodiesel":   {"label": "Biodiesel (used oil)", "emoji": "🛢️"},
+    "landfill":    {"label": "Landfill (last resort)", "emoji": "🗑️"}
+  },
+  "ngos": [
+    {"id": "ngo1", "name": "Annapurna Seva Trust (mock)", "kind": "Charitable trust", "lat": 17.3285, "lon": 78.5362, "phone": "9000000001", "capacity": 120, "veg_only": true, "vehicle": "EV van"},
+    {"id": "ngo2", "name": "Roti Ghar Community Kitchen (mock)", "kind": "Community kitchen", "lat": 17.3121, "lon": 78.5418, "phone": "9000000002", "capacity": 80, "veg_only": false, "vehicle": "bike"},
+    {"id": "ngo3", "name": "Aasra Night Shelter (mock)", "kind": "Night shelter", "lat": 17.3354, "lon": 78.5227, "phone": "9000000003", "capacity": 60, "veg_only": false, "vehicle": "auto"},
+    {"id": "ngo4", "name": "Chiguru Children's Home (mock)", "kind": "Children's home", "lat": 17.3050, "lon": 78.5195, "phone": "9000000004", "capacity": 45, "veg_only": true, "vehicle": "EV scooter"},
+    {"id": "ngo5", "name": "Nidhi Old Age Home (mock)", "kind": "Old age home", "lat": 17.3412, "lon": 78.5461, "phone": "9000000005", "capacity": 35, "veg_only": true, "vehicle": "auto"},
+    {"id": "ngo6", "name": "Seva Bandhu Food Bank (mock)", "kind": "Food bank", "lat": 17.2968, "lon": 78.5502, "phone": "9000000006", "capacity": 150, "veg_only": false, "vehicle": "EV van"}
+  ],
+  "recyclers": [
+    {"id": "gos1", "name": "Gau Seva Goshala (mock)", "type": "animal_feed", "lat": 17.2905, "lon": 78.5120, "phone": "9000000011", "vehicle": "auto", "days": "Daily, 6 PM", "takes": ["veg_scraps", "cooked_unfit"], "accepts": "Clean veg scraps and unspoiled veg leftovers. No moldy food, no meat."},
+    {"id": "farm1", "name": "Kamadhenu Dairy Farm (mock)", "type": "animal_feed", "lat": 17.3510, "lon": 78.5605, "phone": "9000000012", "vehicle": "tractor", "days": "Mon, Wed, Fri", "takes": ["veg_scraps", "cooked_unfit"], "accepts": "Veg peels, rice and dal leftovers."},
+    {"id": "bio1", "name": "GreenFlame Biogas Unit (mock)", "type": "biogas", "lat": 17.3002, "lon": 78.5650, "phone": "9000000013", "vehicle": "EV truck", "days": "Daily", "takes": ["cooked_unfit", "plate_waste", "veg_scraps"], "accepts": "Wet waste, plate waste, oily curries."},
+    {"id": "comp1", "name": "Mitti Compost Collective (mock)", "type": "compost", "lat": 17.3380, "lon": 78.5080, "phone": "9000000014", "vehicle": "EV van", "days": "Tue, Sat", "takes": ["veg_scraps"], "accepts": "Dry and fibrous waste: peels, coconut shells, tea leaves."},
+    {"id": "uco1", "name": "RUCO Oil Collector (mock)", "type": "biodiesel", "lat": 17.3150, "lon": 78.5705, "phone": "9000000015", "vehicle": "van", "days": "Weekly", "takes": ["used_oil"], "accepts": "Used cooking oil, min 5 L (FSSAI RUCO-guided)."}
+  ]
+}

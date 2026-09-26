@@ -3,34 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CirKit · Demand planner</title>
+<title>CirKit · Circular Kitchen Exchange</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --pink: #FCEEF1; --pink-deep: #F4D3DC; --basil: #4F7A4A; --basil-dark: #3A5E36; --basil-soft: #DCEBD5;
-    --soil: #5C4033; --soil-soft: #EFE3D6; --ink: #2B211C; --muted: #7A6A62; --card: #FFFBFA;
-    --marigold: #FFE1B3; --marigold-ink: #8A5A00; --ice: #DCEAF7; --ice-ink: #2F5C86; --berry: #B84A62;
+    /* basil green page, icy pink surfaces, a lighter potting-soil brown */
+    --basil: #43704A; --basil-dark: #2F5234; --basil-deep: #22402A; --basil-soft: #DDEEDD; --basil-glow: #6A9A6B;
+    --card: #FAF0F4; --frost: #FFF8FB; --pink: #FFFAFC; --pink-deep: #EED6E0;
+    --soil: #8A6A56; --soil-deep: #6B5143; --soil-soft: #F3E9E1; --soil-light: #C2A48F;
+    --ink: #2E2622; --muted: #6E5E58; --cream: #FFF7EF;
+    --marigold: #FBE3BA; --marigold-ink: #83560A; --ice: #E1ECF8; --ice-ink: #2E5A83; --berry: #BC4B67;
+    --shadow: 0 16px 36px -18px rgba(16, 36, 14, .6);
+    --lift: 0 3px 0 rgba(106, 78, 62, .12);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: "Nunito", system-ui, sans-serif; background: var(--pink); color: var(--ink); line-height: 1.5; }
-  main { max-width: 1180px; margin: 0 auto; padding: 22px 18px 60px; }
-  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .logo { width: 52px; height: 52px; border-radius: 16px; background: var(--basil); display: grid; place-items: center; font-size: 28px; box-shadow: 0 4px 0 var(--basil-dark); }
-  h1 { margin: 0; font-size: 2rem; font-weight: 900; color: var(--soil); letter-spacing: -0.02em; }
-  .sub { margin: 0; color: var(--muted); font-weight: 600; }
-  .status { background: var(--card); border: 2px solid var(--pink-deep); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 0.9rem; display: flex; gap: 8px; align-items: center; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: "Nunito", system-ui, sans-serif; color: var(--ink); line-height: 1.5; min-height: 100vh;
+    background: radial-gradient(900px 520px at 88% -8%, var(--basil-glow) 0%, transparent 62%),
+                radial-gradient(760px 520px at -6% 108%, var(--basil-deep) 0%, transparent 60%), var(--basil);
+    background-attachment: fixed; }
+  /* floating food doodles behind everything */
+  .deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .deco span { position: absolute; font-size: 58px; opacity: .13; animation: drift 11s ease-in-out infinite; }
+  .deco span:nth-child(2n) { animation-duration: 14s; animation-delay: -4s; }
+  .deco span:nth-child(3n) { animation-duration: 9s; animation-delay: -2s; font-size: 44px; }
+  @keyframes drift { 50% { transform: translateY(-16px) rotate(8deg); } }
+
+  /* ---------- shell: left sidebar + top bar ---------- */
+  .app { position: relative; z-index: 1; display: grid; grid-template-columns: 252px minmax(0, 1fr); gap: 22px; max-width: 1480px; margin: 0 auto; padding: 18px; }
+  .side { background: linear-gradient(180deg, var(--frost), var(--card)) !important; border: 1px solid rgba(255,255,255,.75); position: sticky; top: 18px; align-self: start; max-height: calc(100vh - 36px); overflow: auto; background: var(--card); border-radius: 28px; padding: 18px 14px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow); }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 0 4px; }
+  .logo { width: 50px; height: 50px; border-radius: 17px; background: var(--basil); display: grid; place-items: center; font-size: 28px; box-shadow: 0 4px 0 var(--basil-dark); animation: sway 5s ease-in-out infinite; }
+  @keyframes sway { 50% { transform: rotate(-7deg); } }
+  .brand b { display: block; font-size: 1.45rem; font-weight: 900; color: var(--basil-dark); letter-spacing: -.02em; line-height: 1.05; }
+  .brand small { color: var(--muted); font-weight: 700; font-size: .74rem; line-height: 1.2; display: block; }
+  .nav { display: flex; flex-direction: column; gap: 5px; }
+  .nav .grp { font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 8px 8px 2px; }
+  .nav button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: transparent; color: var(--soil-deep); box-shadow: none; padding: 7px 9px; border-radius: 17px; font-weight: 800; }
+  .nav button:hover:not(:disabled) { background: #fff; }
+  .nav button .tx { flex: 1; line-height: 1.15; }
+  .nav button .tx small { display: block; font-size: .7rem; font-weight: 800; color: var(--muted); }
+  .nav button[aria-selected="true"] { background: var(--basil); color: #fff; box-shadow: 0 4px 0 var(--basil-dark); }
+  .nav button[aria-selected="true"] .tx small { color: #E6F2E1; }
+  .nav button[aria-selected="true"] .emo { background: rgba(255,255,255,.95); }
+  .nav button.soon { opacity: .6; cursor: default; }
+  .nav .badge { font-size: .64rem; background: var(--soil-soft); color: var(--soil); border-radius: 999px; padding: 1px 7px; font-weight: 900; }
+  .nav .alert { background: var(--berry); color: #fff; border-radius: 999px; padding: 0 7px; font-size: .74rem; font-weight: 900; }
+  .nav .alert.g { background: var(--marigold); color: var(--marigold-ink); }
+  .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 7px; padding-top: 12px; border-top: 2px dashed var(--pink-deep); font-size: .82rem; color: var(--muted); font-weight: 700; }
+  .side-foot input { width: 100%; font-size: .8rem; padding: 7px 10px; }
+  .side-foot .row { display: flex; gap: 6px; }
+  .side-foot .row button { flex: 1; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 4px 2px 2px; }
+  .ttl { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .ttl .emo { box-shadow: 0 4px 0 rgba(0,0,0,.12); }
+  .ttl h1 { margin: 0; font-size: 1.85rem; font-weight: 900; color: #fff; letter-spacing: -.02em; line-height: 1.1; text-shadow: 0 2px 0 rgba(0,0,0,.12); }
+  .ttl p { margin: 2px 0 0; color: #E3EFDE; font-weight: 700; }
+  .top-r { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .status { background: var(--card); border-radius: 999px; padding: 7px 14px; font-weight: 800; font-size: .86rem; display: flex; gap: 8px; align-items: center; box-shadow: var(--shadow); }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: #bbb; }
-  .dot.on { background: var(--basil); } .dot.off { background: var(--berry); }
-  .card { background: var(--card); border: 2px solid var(--pink-deep); border-radius: 22px; padding: 18px; margin-top: 18px; }
-  h2 { margin: 0 0 12px; font-size: 1.2rem; font-weight: 800; color: var(--soil); }
+  .dot.on { background: var(--basil); box-shadow: 0 0 0 4px var(--basil-soft); } .dot.off { background: var(--berry); }
+
+  /* the Donate <-> Recycle slider (top-right, on every tab) */
+  .modebox { display: flex; align-items: center; gap: 10px; background: var(--card); padding: 6px 6px 6px 14px; border-radius: 999px; box-shadow: var(--shadow); }
+  .modebox .lbl { font-size: .66rem; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; color: var(--soil); line-height: 1.15; }
+  .switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; width: 262px; height: 54px; padding: 5px; border-radius: 999px; background: #fff; color: var(--soil); box-shadow: inset 0 2px 7px rgba(80,50,40,.14); font-size: .98rem; }
+  .switch .knob { position: absolute; top: 5px; left: 5px; width: calc(50% - 5px); height: calc(100% - 10px); border-radius: 999px; background: var(--basil); box-shadow: 0 4px 0 var(--basil-dark); transition: transform .45s cubic-bezier(.5, 1.6, .4, 1), background .3s, box-shadow .3s; }
+  .switch[aria-checked="true"] .knob { transform: translateX(100%); background: var(--soil); box-shadow: 0 4px 0 var(--soil-deep); }
+  .switch .opt { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 7px; font-weight: 900; transition: color .3s; }
+  .switch .opt .e { font-size: 1.35rem; display: inline-block; transition: transform .45s cubic-bezier(.5, 1.8, .4, 1); }
+  .switch[aria-checked="false"] .opt.d, .switch[aria-checked="true"] .opt.r { color: #fff; }
+  .switch[aria-checked="false"] .opt.d .e, .switch[aria-checked="true"] .opt.r .e { transform: scale(1.18) rotate(-10deg); }
+  .switch.nudge { animation: nudge .7s ease-in-out 2; }
+  @keyframes nudge { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .switch:focus-visible { outline: 3px solid var(--berry); outline-offset: 3px; }
+
+  /* ---------- emoji bubbles ---------- */
+  .emo { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; background: #fff; font-size: 1.3rem; flex-shrink: 0; line-height: 1; box-shadow: var(--lift); text-shadow: 0 2px 2px rgba(0,0,0,.12); transition: transform .3s cubic-bezier(.5, 1.8, .4, 1); }
+  .emo.sm { width: 32px; height: 32px; border-radius: 11px; font-size: 1.05rem; }
+  .emo.lg { width: 58px; height: 58px; border-radius: 19px; font-size: 2rem; }
+  .emo.g { background: var(--basil-soft); } .emo.b { background: var(--soil-soft); } .emo.p { background: var(--pink-deep); } .emo.y { background: var(--marigold); }
+  :hover > .emo, :focus-visible > .emo { transform: rotate(-10deg) scale(1.1); }
+
+  main { min-width: 0; padding-bottom: 50px; }
+  .card { background: linear-gradient(180deg, var(--frost) 0%, var(--card) 70%); border: 1px solid rgba(255,255,255,.75); border-radius: 26px; padding: 20px; margin-top: 20px; box-shadow: var(--shadow); }
+  h2 { margin: 0 0 12px; font-size: 1.18rem; font-weight: 900; color: var(--soil-deep); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 800; color: var(--soil-deep); }
+  .sub { margin: 0; color: var(--muted); font-weight: 600; }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-  .stat { background: var(--basil-soft); border-radius: 18px; padding: 12px 14px; }
+  .stat { background: var(--basil-soft); border-radius: 20px; padding: 12px 40px 12px 14px; position: relative; overflow: hidden; }
   .stat .v { font-size: 1.6rem; font-weight: 900; color: var(--basil-dark); }
   .stat .l { font-size: 0.85rem; color: var(--basil-dark); font-weight: 700; }
+  .stat .se { position: absolute; right: 8px; top: 6px; font-size: 1.7rem; opacity: .9; text-shadow: 0 3px 3px rgba(0,0,0,.12); transition: transform .3s cubic-bezier(.5, 1.8, .4, 1); }
+  .stat:hover .se { transform: scale(1.2) rotate(-12deg); }
+  .stat.p2 { background: var(--soil-soft); } .stat.p2 .v, .stat.p2 .l { color: var(--soil-deep); }
+  .stat.warn { background: var(--pink-deep); } .stat.warn .v, .stat.warn .l { color: var(--berry); }
+  .stat .pill { font-size: 0.68rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; opacity: .7; }
+  [role="tabpanel"][hidden] { display: none; }
+  [role="tabpanel"] { animation: rise .35s ease-out; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   /* rolling queue */
   .queue { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; }
   .chip { min-width: 96px; border-radius: 18px; padding: 10px; background: #fff; border: 2px solid var(--soil-soft); text-align: center; flex-shrink: 0; }
@@ -41,7 +116,6 @@
   .chip.next { border: 2px dashed var(--basil); background: var(--basil-soft); }
   .chip.new { animation: pop .6s ease-out; border-color: var(--basil); }
   @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .chip.new, .trace li { animation: none; } }
   .tag { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: 0.75rem; font-weight: 800; margin-top: 4px; }
   .normal { background: var(--basil-soft); color: var(--basil-dark); }
   .weekend { background: var(--soil-soft); color: var(--soil); }
@@ -49,32 +123,38 @@
   .exam { background: var(--ice); color: var(--ice-ink); }
   .holiday { background: var(--pink-deep); color: var(--berry); }
   .qnote { color: var(--muted); font-weight: 600; font-size: 0.92rem; margin: 6px 0 0; }
-  /* actions */
+  /* buttons */
   .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  button { font: inherit; font-weight: 800; border: 0; border-radius: 14px; padding: 11px 18px; cursor: pointer; background: var(--basil); color: #fff; box-shadow: 0 3px 0 var(--basil-dark); }
-  button.soil { background: var(--soil); box-shadow: 0 3px 0 #3E2A20; }
-  button.ghost { background: var(--soil-soft); color: var(--soil); box-shadow: none; }
+  button { font: inherit; font-weight: 800; border: 0; border-radius: 14px; padding: 11px 18px; cursor: pointer; background: var(--basil); color: #fff; box-shadow: 0 3px 0 var(--basil-dark); transition: transform .12s; }
+  button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+  button.soil { background: var(--soil); box-shadow: 0 3px 0 var(--soil-deep); }
+  button.ghost { background: var(--soil-soft); color: var(--soil-deep); box-shadow: none; }
+  button.berry { background: var(--berry); box-shadow: 0 3px 0 #8E3348; }
+  button.white { background: #fff; color: var(--soil-deep); box-shadow: var(--lift); }
+  button.small { padding: 6px 11px; font-size: .82rem; border-radius: 11px; }
   button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
-  button:focus-visible, input:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
-  .grid { display: grid; grid-template-columns: 0.9fr 1.3fr; gap: 18px; }
-  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 1.6rem; } }
-  .grid > .card { margin-top: 0; }
+  button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: 0.9fr 1.3fr; gap: 20px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid > .card, .grid2 > .card { margin-top: 0; }
   .trace { list-style: none; margin: 0; padding: 0; }
   .trace li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--pink-deep); animation: slide .35s ease-out; }
-  .trace .ic { font-size: 1.2rem; width: 28px; flex-shrink: 0; text-align: center; }
+  .trace .ic { font-size: 1.1rem; width: 32px; height: 32px; border-radius: 11px; background: #fff; display: grid; place-items: center; flex-shrink: 0; box-shadow: var(--lift); }
   .trace .ag { font-weight: 900; color: var(--basil-dark); font-size: 0.82rem; display: block; }
+  .trace li.bad .ag { color: var(--berry); }
+  .trace li.bad .ic { background: var(--pink-deep); }
   @keyframes slide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   .empty { color: var(--muted); font-weight: 600; }
   .big { font-size: 3rem; font-weight: 900; color: var(--soil); line-height: 1; }
   .dishes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
-  .dish { background: var(--pink); border-radius: 18px; padding: 12px; }
-  .dish .e { font-size: 1.6rem; }
+  .dish { background: #fff; border-radius: 18px; padding: 12px; box-shadow: var(--lift); }
+  .dish .e { font-size: 1.8rem; text-shadow: 0 3px 3px rgba(0,0,0,.12); }
   .dish .n { font-weight: 800; }
   .dish .c { font-size: 1.4rem; font-weight: 900; color: var(--basil-dark); }
   .dish .u { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  th, td { padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--soil-soft); white-space: nowrap; }
+  th, td { padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--pink-deep); white-space: nowrap; }
   th { color: var(--muted); font-weight: 800; }
   .st { border-radius: 999px; padding: 2px 9px; font-weight: 800; font-size: 0.78rem; }
   .st.ok { background: var(--basil-soft); color: var(--basil-dark); }
@@ -87,90 +167,861 @@
   .box.ours { background: var(--basil-soft); color: var(--basil-dark); }
   .box.usual { background: var(--soil-soft); color: var(--soil); }
   .box .v { font-size: 1.5rem; font-weight: 900; }
-  footer { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; color: var(--muted); font-weight: 700; }
-  input { font: inherit; padding: 9px 12px; border-radius: 12px; border: 2px solid var(--pink-deep); background: #fff; }
+  input, select, textarea { font: inherit; padding: 9px 12px; border-radius: 12px; border: 2px solid var(--pink-deep); background: #fff; color: var(--ink); }
   .err { color: var(--berry); font-weight: 700; }
+
+  /* ---------- dashboard ---------- */
+  .hero { background: linear-gradient(135deg, #9C7A64 0%, var(--soil) 55%, #7A5A47 100%); color: var(--cream); border-radius: 28px; padding: 22px; margin-top: 20px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+  .hero::after { content: "🌿"; position: absolute; right: -10px; bottom: -34px; font-size: 150px; opacity: .13; transform: rotate(-18deg); pointer-events: none; }
+  .hero .kicker, .p3hero .kicker { font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .75rem; opacity: .8; }
+  .hero .line { font-size: 1.55rem; font-weight: 900; line-height: 1.2; margin: 4px 0 16px; max-width: 640px; }
+  .loop { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; position: relative; z-index: 1; }
+  .node { background: rgba(255,246,236,.12); border: 2px solid rgba(255,246,236,.3); border-radius: 20px; padding: 12px; color: var(--cream); text-align: left; box-shadow: none; font-weight: 700; }
+  .node.live { background: var(--card); color: var(--soil-deep); border-color: var(--card); }
+  .node .n { font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; opacity: .75; }
+  .node .t { font-size: 1.02rem; font-weight: 900; display: block; }
+  .node .s { font-size: .8rem; font-weight: 700; opacity: .85; display: block; margin-top: 2px; }
+  .node .lv { display: inline-block; margin-top: 6px; font-size: .7rem; font-weight: 900; border-radius: 999px; padding: 1px 8px; background: var(--basil); color: #fff; }
+  .node:not(.live) .lv { background: rgba(255,246,236,.2); color: var(--cream); }
+  .todo { list-style: none; margin: 0; padding: 0; }
+  .todo li { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--pink-deep); }
+  .todo .ck { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; background: var(--soil-soft); color: var(--soil); font-weight: 900; font-size: .85rem; }
+  .todo li.done .ck { background: var(--basil); color: #fff; }
+  .todo li.done .tx { color: var(--muted); text-decoration: line-through; }
+  .todo li.now .ck { background: var(--berry); color: #fff; }
+  .todo .tx { flex: 1; font-weight: 700; }
+  .todo .pp { font-size: .72rem; font-weight: 900; color: var(--muted); display: block; text-transform: uppercase; letter-spacing: .04em; }
+  .mini { display: flex; flex-direction: column; gap: 8px; }
+  .mrow { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--soil-soft); border-radius: 16px; padding: 8px 10px; }
+  .mrow .nm { flex: 1; font-weight: 800; }
+  .mrow .nm small { display: block; color: var(--muted); font-weight: 700; }
+
+  /* ---------- pillar 2 ---------- */
+  .clockbar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .clock { display: flex; align-items: center; gap: 12px; }
+  .clock .face { width: 54px; height: 54px; border-radius: 50%; background: var(--soil); color: var(--cream); display: grid; place-items: center; font-size: 1.5rem; box-shadow: 0 4px 0 var(--soil-deep); }
+  .clock .tm { font-size: 1.6rem; font-weight: 900; color: var(--soil-deep); line-height: 1.1; }
+  .clock .dt { color: var(--muted); font-weight: 700; font-size: .88rem; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--pink-deep); }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filters button { background: #fff; color: var(--soil); border: 2px solid var(--soil-soft); box-shadow: none; padding: 5px 12px; font-size: .85rem; border-radius: 999px; }
+  .filters button[aria-pressed="true"] { background: var(--soil); color: var(--cream); border-color: var(--soil); }
+  .radar { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; }
+  .batch { background: #fff; border: 2px solid var(--soil-soft); border-radius: 20px; padding: 12px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+  .batch.expired { border-color: var(--soil); background: repeating-linear-gradient(135deg, #fff, #fff 10px, var(--soil-soft) 10px, var(--soil-soft) 12px); }
+  .batch.critical { border-color: var(--berry); }
+  .batch.at_risk { border-color: #E9B665; }
+  .batch .top { display: flex; gap: 10px; align-items: center; }
+  .ring { width: 58px; height: 58px; flex-shrink: 0; position: relative; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .in { position: absolute; inset: 0; display: grid; place-items: center; font-size: .72rem; font-weight: 900; color: var(--soil); text-align: center; line-height: 1.05; }
+  .batch.critical .ring { animation: beat 1.6s ease-in-out infinite; }
+  @keyframes beat { 50% { transform: scale(1.06); } }
+  .batch .id { font-weight: 900; color: var(--soil); }
+  .batch .q { font-size: .85rem; color: var(--muted); font-weight: 700; }
+  .badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .b { font-size: .72rem; font-weight: 900; border-radius: 999px; padding: 1px 8px; }
+  .b.expired { background: var(--soil); color: var(--cream); }
+  .b.critical { background: var(--berry); color: #fff; }
+  .b.at_risk { background: var(--marigold); color: var(--marigold-ink); }
+  .b.fresh { background: var(--basil-soft); color: var(--basil-dark); }
+  .b.fefo { background: var(--basil); color: #fff; }
+  .b.open { background: var(--ice); color: var(--ice-ink); }
+  .b.risk { background: var(--pink-deep); color: var(--berry); }
+  .batch .tip { font-size: .8rem; color: var(--muted); font-weight: 600; background: var(--card); border-radius: 12px; padding: 6px 8px; }
+  .batch .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .8rem; color: var(--muted); font-weight: 700; }
+  .jobs { display: flex; flex-direction: column; gap: 8px; }
+  .job { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; border-radius: 16px; padding: 10px 12px; background: #fff; border: 2px solid var(--soil-soft); }
+  .job .ai { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font-size: 1.15rem; }
+  .job .h { font-weight: 900; color: var(--soil); }
+  .job .r { font-size: .83rem; color: var(--muted); font-weight: 600; }
+  .job .val { font-weight: 900; color: var(--soil); text-align: right; font-size: .9rem; }
+  .job .val small { display: block; color: var(--muted); font-weight: 700; font-size: .72rem; }
+  .a-use_first .ai { background: var(--basil-soft); } .a-chef_special .ai { background: var(--marigold); }
+  .a-staff_meal .ai { background: var(--ice); } .a-donate .ai { background: var(--pink-deep); } .a-discard .ai { background: var(--soil); }
+  .a-discard { background: repeating-linear-gradient(135deg, #fff, #fff 10px, var(--card) 10px, var(--card) 12px); }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: .8rem; font-weight: 700; color: var(--muted); margin-top: 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--c); }
+  .note { background: var(--card); color: var(--soil-deep); border-radius: 18px; padding: 12px 14px; font-size: .84rem; font-weight: 700; box-shadow: var(--shadow); }
+  .flash { background: var(--basil-soft); color: var(--basil-dark); border-radius: 14px; padding: 10px 12px; font-weight: 700; margin-top: 10px; animation: rise .3s ease-out; }
+  .flash.bad { background: var(--pink-deep); color: var(--berry); }
+  .flash.soilf { background: var(--soil-soft); color: var(--soil-deep); }
+  .form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .form input { width: 90px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- pillar 3: redistribution ---------- */
+  .p3hero { margin-top: 20px; border-radius: 28px; padding: 22px; color: var(--cream); position: relative; overflow: hidden; box-shadow: var(--shadow);
+    background: linear-gradient(120deg, var(--basil-dark) 0%, #5E8A57 45%, #9C7A64 100%); display: grid; grid-template-columns: 1fr 1.35fr; gap: 18px; align-items: center; }
+  .p3hero::after { content: "🍛"; position: absolute; left: 33%; bottom: -40px; font-size: 130px; opacity: .12; transform: rotate(14deg); pointer-events: none; }
+  .p3hero .line { font-size: 1.55rem; font-weight: 900; line-height: 1.2; margin: 4px 0 8px; }
+  .p3hero p { margin: 0; font-weight: 700; opacity: .92; }
+  .p3hero .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 560px) { .p3hero .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .p3hero .stat { background: var(--card); }
+  .p3hero .stat .v { font-size: 1.35rem; }
+  .p3hero .stat .l { font-size: .76rem; }
+  .p3hero .stat.b { background: var(--soil-soft); } .p3hero .stat.b .v, .p3hero .stat.b .l { color: var(--soil-deep); }
+  .p3grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 20px; margin-top: 20px; }
+  .p3grid > .card { margin-top: 0; }
+  .ribbon { display: flex; gap: 12px; align-items: center; border-radius: 18px; padding: 10px 12px; font-weight: 700; font-size: .9rem; background: var(--basil-soft); color: var(--basil-dark); cursor: pointer; border: 2px dashed transparent; }
+  .ribbon:hover { border-color: currentColor; }
+  body.mode-recycle .ribbon { background: var(--soil-soft); color: var(--soil-deep); }
+  .ribbon b { display: block; font-size: 1rem; font-weight: 900; }
+  .fs { border: 0; margin: 14px 0 0; padding: 0; }
+  .fs legend { font-weight: 900; color: var(--soil-deep); font-size: .9rem; margin-bottom: 6px; padding: 0; display: flex; align-items: center; gap: 8px; }
+  .fld { display: flex; flex-direction: column; gap: 3px; font-size: .78rem; font-weight: 800; color: var(--muted); min-width: 0; }
+  .fld input, .fld select { width: 100%; font-size: .95rem; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .row3 { display: grid; grid-template-columns: 1.4fr .8fr .8fr; gap: 10px; margin-top: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chips label { position: relative; cursor: pointer; }
+  .chips input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chips label > span { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 2px solid var(--pink-deep); color: var(--soil-deep); border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: .88rem; transition: all .15s; }
+  .chips span .e { font-size: 1.1rem; transition: transform .3s cubic-bezier(.5, 1.8, .4, 1); }
+  .chips label:hover > span { border-color: var(--basil); }
+  .chips input:checked + span { background: var(--basil); border-color: var(--basil); color: #fff; box-shadow: 0 3px 0 var(--basil-dark); }
+  .chips input:checked + span .e { transform: scale(1.2) rotate(-10deg); }
+  body.mode-recycle .chips input:checked + span { background: var(--soil); border-color: var(--soil); box-shadow: 0 3px 0 var(--soil-deep); }
+  .chips input:focus-visible + span { outline: 3px solid var(--berry); outline-offset: 2px; }
+  .chips.tiny label > span { padding: 4px 10px; font-size: .8rem; }
+  body:not(.mode-recycle) .only-recycle, body.mode-recycle .only-donate, form.kind-oil .no-oil { display: none !important; }
+  .vm { display: inline-grid; place-items: center; width: 15px; height: 15px; border: 2px solid #2E8B3A; border-radius: 3px; background: #fff; vertical-align: -2px; flex-shrink: 0; }
+  .vm::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #2E8B3A; }
+  .vm.nv { border-color: #9C3B2E; } .vm.nv::after { background: #9C3B2E; border-radius: 1px; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .safety { display: flex; gap: 12px; align-items: center; border-radius: 18px; padding: 12px; margin-top: 14px; background: #fff; border: 2px dashed var(--pink-deep); }
+  .safety .emo { background: var(--card); }
+  .safety.ok { border: 2px solid var(--basil-soft); } .safety.ok .emo { background: var(--basil-soft); }
+  .safety.warn { border: 2px solid #F0CF95; } .safety.warn .emo { background: var(--marigold); }
+  .safety.bad { border: 2px solid var(--pink-deep); } .safety.bad .emo { background: var(--pink-deep); }
+  .safety b { display: block; color: var(--soil-deep); }
+  .safety small { color: var(--muted); font-weight: 700; }
+  .cd { font-variant-numeric: tabular-nums; font-weight: 900; border-radius: 999px; padding: 2px 10px; background: var(--basil-soft); color: var(--basil-dark); white-space: nowrap; font-size: .85rem; }
+  .cd.warn { background: var(--marigold); color: var(--marigold-ink); }
+  .cd.bad { background: var(--berry); color: #fff; animation: beat 1.4s ease-in-out infinite; }
+  .cd.gone { background: var(--soil); color: var(--cream); }
+  .bigbtn { font-size: 1.12rem; padding: 14px 26px; border-radius: 18px; display: inline-flex; gap: 10px; align-items: center; }
+  .bigbtn .e { font-size: 1.4rem; }
+  body.mode-recycle #postBtn { background: var(--soil); box-shadow: 0 4px 0 var(--soil-deep); }
+  .check { display: flex; gap: 8px; align-items: center; font-weight: 700; color: var(--muted); font-size: .88rem; cursor: pointer; margin-top: 10px; }
+  .quick { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .quick button { background: #fff; color: var(--soil-deep); box-shadow: none; border: 2px solid var(--pink-deep); padding: 3px 10px; font-size: .78rem; border-radius: 999px; }
+  .posts { display: flex; flex-direction: column; gap: 12px; }
+  .post { background: #fff; border-radius: 22px; padding: 14px; border: 2px solid transparent; box-shadow: var(--lift); animation: rise .35s ease-out; }
+  .post.m-recycle { border-color: var(--soil-soft); }
+  .post.s-notified, .post.s-accepted, .post.s-on_the_way { border-color: var(--basil-soft); }
+  .post.s-unmatched, .post.s-cancelled { border-color: var(--pink-deep); }
+  .phead { display: flex; gap: 10px; align-items: center; }
+  .phead .nm { flex: 1; min-width: 0; font-weight: 900; color: var(--soil-deep); }
+  .phead .nm small { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; color: var(--muted); font-weight: 700; font-size: .8rem; }
+  .steps { display: flex; margin: 12px 0 6px; overflow-x: auto; padding-bottom: 4px; }
+  .stp { flex: 1; min-width: 62px; display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; font-size: .68rem; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.1; }
+  .stp::before { content: ""; position: absolute; top: 15px; left: -50%; width: 100%; height: 4px; background: var(--pink-deep); z-index: 0; }
+  .stp:first-child::before { display: none; }
+  .stp i { font-style: normal; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--card); font-size: .95rem; position: relative; z-index: 1; filter: grayscale(1); opacity: .55; }
+  .stp.done i { background: var(--basil-soft); filter: none; opacity: 1; box-shadow: 0 0 0 3px #fff; }
+  .stp.done::before { background: var(--basil); }
+  .stp.done { color: var(--basil-dark); }
+  .stp.now i { background: var(--marigold); filter: none; opacity: 1; animation: beat 1.4s ease-in-out infinite; box-shadow: 0 0 0 3px #fff; }
+  .stp.now { color: var(--marigold-ink); }
+  .evts { display: flex; gap: 5px; flex-wrap: wrap; margin: 4px 0; }
+  .evt { font-size: .74rem; font-weight: 800; border-radius: 999px; padding: 2px 9px; background: var(--pink-deep); color: var(--berry); }
+  .evt.re { background: var(--ice); color: var(--ice-ink); }
+  .who { display: flex; gap: 10px; align-items: center; background: var(--card); border-radius: 16px; padding: 8px 10px; margin-top: 8px; font-size: .88rem; font-weight: 700; flex-wrap: wrap; }
+  .who .nm { flex: 1; min-width: 150px; }
+  .who .nm small { display: block; color: var(--muted); font-weight: 700; }
+  .call { display: inline-flex; align-items: center; gap: 6px; background: var(--basil); color: #fff; text-decoration: none; font-weight: 900; font-size: .82rem; border-radius: 999px; padding: 5px 12px; box-shadow: 0 3px 0 var(--basil-dark); white-space: nowrap; }
+  .call.s { background: var(--soil); box-shadow: 0 3px 0 var(--soil-deep); }
+  .quote { background: var(--card); border-left: 4px solid var(--basil); border-radius: 4px 14px 14px 4px; padding: 8px 10px; margin-top: 8px; font-size: .86rem; font-weight: 600; color: var(--soil-deep); }
+  .quote small { display: block; font-weight: 900; color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; }
+  .pact { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .pact input { width: 110px; font-weight: 900; letter-spacing: .3em; text-align: center; }
+  details.chatd { margin-top: 10px; }
+  details.chatd summary { cursor: pointer; font-weight: 900; color: var(--basil-dark); list-style: none; display: inline-flex; gap: 8px; align-items: center; background: var(--basil-soft); border-radius: 999px; padding: 5px 12px; font-size: .86rem; }
+  details.chatd summary::-webkit-details-marker { display: none; }
+  .chat { margin-top: 8px; background: var(--card); border-radius: 18px; padding: 10px; }
+  .calls { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .msgs { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; padding: 4px; }
+  .bub { max-width: 82%; padding: 7px 11px; border-radius: 16px; font-size: .88rem; font-weight: 600; background: #fff; align-self: flex-start; box-shadow: var(--lift); animation: rise .25s ease-out; }
+  .bub small { display: block; font-size: .68rem; color: var(--muted); font-weight: 800; }
+  .bub.me { align-self: flex-end; background: var(--basil); color: #fff; border-bottom-right-radius: 5px; }
+  .bub.me small { color: #E0EEDA; }
+  .bub.them { border-bottom-left-radius: 5px; }
+  .bub.bot { align-self: center; background: var(--ice); color: var(--ice-ink); max-width: 94%; text-align: center; }
+  .qr-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+  .qr-row button { background: #fff; color: var(--basil-dark); border: 2px solid var(--basil-soft); box-shadow: none; padding: 5px 11px; font-size: .8rem; border-radius: 999px; }
+  .qr-row button:hover { background: var(--basil-soft); }
+  form.say { display: flex; gap: 6px; margin-top: 8px; }
+  form.say input { flex: 1; min-width: 0; font-size: .88rem; padding: 7px 10px; }
+  .partners { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .partner { background: #fff; border-radius: 20px; padding: 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--lift); }
+  .partner .top { display: flex; gap: 10px; align-items: center; }
+  .partner .nm { font-weight: 900; color: var(--soil-deep); line-height: 1.2; }
+  .partner .nm small { display: block; color: var(--muted); font-weight: 700; font-size: .78rem; }
+  .partner .acc { font-size: .82rem; font-weight: 600; color: var(--ink); background: var(--card); border-radius: 12px; padding: 6px 8px; }
+  .partner .ft { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: .78rem; font-weight: 800; color: var(--muted); flex-wrap: wrap; }
+  .tagp { font-size: .7rem; font-weight: 900; border-radius: 999px; padding: 1px 8px; background: var(--basil-soft); color: var(--basil-dark); }
+  .tagp.b { background: var(--soil-soft); color: var(--soil-deep); } .tagp.x { background: var(--pink-deep); color: var(--berry); }
+  .focus { margin-left: auto; font-size: .78rem; font-weight: 800; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .focus select { font-size: .82rem; padding: 5px 8px; max-width: 230px; font-weight: 800; }
+  .near { display: flex; flex-direction: column; gap: 10px; max-height: 820px; overflow: auto; padding: 2px 4px 4px 2px; }
+  .nc { background: #fff; border-radius: 20px; padding: 12px; box-shadow: var(--lift); border: 2px solid transparent; animation: rise .3s ease-out; transition: opacity .2s; }
+  .nc.on { border-color: var(--basil); box-shadow: 0 0 0 4px var(--basil-soft); }
+  body.mode-recycle .nc.on { border-color: var(--soil); box-shadow: 0 0 0 4px var(--soil-soft); }
+  .nc.dim { opacity: .6; }
+  .nt { display: flex; gap: 10px; align-items: center; }
+  .nt .nm { flex: 1; min-width: 0; font-weight: 900; color: var(--soil-deep); line-height: 1.2; }
+  .nt .nm small { display: block; font-weight: 700; color: var(--muted); font-size: .78rem; margin-top: 2px; }
+  .nt .km { text-align: right; font-weight: 900; color: var(--basil-dark); white-space: nowrap; }
+  .nt .km small { display: block; color: var(--muted); font-weight: 800; font-size: .74rem; }
+  .rk { width: 32px; height: 32px; border-radius: 50%; background: var(--basil); color: #fff; display: grid; place-items: center; font-weight: 900; box-shadow: 0 3px 0 var(--basil-dark); flex-shrink: 0; }
+  .nb, .na { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .nb:empty { display: none; }
+  .nf { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; font-size: .8rem; font-weight: 800; color: var(--muted); }
+  .nf > span:first-child { margin-right: auto; }
+  .nc .acc { font-size: .82rem; font-weight: 600; color: var(--ink); background: var(--card); border-radius: 12px; padding: 6px 8px; margin-top: 8px; }
+  .demo { font-size: .72rem; color: var(--muted); font-weight: 700; }
+  .tagp.y { background: var(--marigold); color: var(--marigold-ink); }
+  .board { background: linear-gradient(180deg, #fff, var(--card)); border: 2px solid var(--basil-soft); border-radius: 20px; padding: 12px; margin-bottom: 12px; animation: rise .3s ease-out; }
+  .bhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; color: var(--soil-deep); }
+  .seg2 { display: inline-flex; align-items: center; gap: 3px; background: #fff; border-radius: 999px; padding: 3px 3px 3px 10px; font-size: .74rem; font-weight: 800; color: var(--muted); box-shadow: inset 0 1px 4px rgba(0,0,0,.08); }
+  .seg2 button { background: transparent; color: var(--soil-deep); box-shadow: none; padding: 4px 11px; font-size: .8rem; border-radius: 999px; }
+  .seg2 button[aria-pressed="true"] { background: var(--basil); color: #fff; }
+  .xbtn { margin-left: auto; background: transparent; color: var(--muted); box-shadow: none; padding: 4px 9px; }
+  .post.focused { outline: 3px solid var(--basil-soft); }
+  .dot.warn { background: #E9A23B; box-shadow: 0 0 0 4px var(--marigold); }
+  /* ---------- pillar 4: revenue & impact (the boldest tab) ---------- */
+  :root { --gold1: #B7862B; --gold2: #FFE08A; --silver1: #7E8C99; --silver2: #F1F4F7; --bronze1: #8A5634; --bronze2: #E9B48A; --iceblue: #7FB2E5; --marigold-strong: #F2A93B; }
+  .p4hero { margin-top: 20px; border-radius: 30px; padding: 24px; color: #fff; position: relative; overflow: hidden; box-shadow: var(--shadow);
+    background: radial-gradient(420px 260px at 92% 8%, rgba(242,169,59,.55), transparent 70%), radial-gradient(360px 240px at 6% 110%, rgba(188,75,103,.45), transparent 70%),
+                linear-gradient(125deg, var(--basil-deep) 0%, var(--basil) 45%, #7D5E4B 100%);
+    display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; align-items: center; }
+  .p4hero::after { content: "💚"; position: absolute; left: 36%; bottom: -46px; font-size: 140px; opacity: .1; transform: rotate(-12deg); pointer-events: none; }
+  .p4line { font-size: 1.9rem; font-weight: 900; line-height: 1.15; margin: 6px 0 14px; text-shadow: 0 2px 0 rgba(0,0,0,.15); }
+  .medal-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .medal { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; font-size: 2.3rem; flex-shrink: 0; position: relative;
+    box-shadow: 0 6px 0 rgba(0,0,0,.18), inset 0 0 0 5px rgba(255,255,255,.45); animation: shine 4s ease-in-out infinite; }
+  @keyframes shine { 50% { transform: rotate(-6deg) scale(1.04); } }
+  .t-Gold { background: conic-gradient(from 210deg, var(--gold1), var(--gold2), var(--gold1), var(--gold2), var(--gold1)); color: #5A3E00; }
+  .t-Silver { background: conic-gradient(from 210deg, var(--silver1), var(--silver2), var(--silver1), var(--silver2), var(--silver1)); color: #37424D; }
+  .t-Bronze { background: conic-gradient(from 210deg, var(--bronze1), var(--bronze2), var(--bronze1), var(--bronze2), var(--bronze1)); color: #4A2A14; }
+  .tierpill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 2px 11px; font-weight: 900; font-size: .78rem; box-shadow: inset 0 0 0 2px rgba(255,255,255,.5); }
+  .medal-info b { font-size: 1.15rem; display: block; }
+  .medal-info small { opacity: .9; font-weight: 700; }
+  .bar { height: 12px; border-radius: 999px; background: rgba(255,255,255,.28); overflow: hidden; margin-top: 6px; min-width: 200px; }
+  .bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--marigold-strong), var(--gold2)); }
+  .bigtiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; position: relative; z-index: 1; }
+  .bt { background: var(--frost); color: var(--ink); border-radius: 22px; padding: 12px 14px; position: relative; overflow: hidden; box-shadow: 0 4px 0 rgba(0,0,0,.12); }
+  .bt .v { font-size: 1.75rem; font-weight: 900; line-height: 1.05; color: var(--basil-dark); }
+  .bt .l { font-size: .78rem; font-weight: 800; color: var(--muted); margin-top: 2px; }
+  .bt .se { position: absolute; right: 10px; top: 8px; font-size: 1.5rem; }
+  .bt.y { background: linear-gradient(160deg, #FFF4DC, #FBE3BA); } .bt.y .v { color: #7A4F00; }
+  .bt.p { background: linear-gradient(160deg, #FFF0F4, #F6D3DD); } .bt.p .v { color: var(--berry); }
+  .bt.i { background: linear-gradient(160deg, #F1F7FE, #D7E7F8); } .bt.i .v { color: var(--ice-ink); }
+  .honesty { margin: 12px 0 0; background: rgba(255,255,255,.14); color: #F4FBF1; border: 1px dashed rgba(255,255,255,.4); border-radius: 16px; padding: 8px 12px; font-size: .82rem; font-weight: 700; }
+  .recs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .rec { background: #fff; border-radius: 18px; padding: 12px; box-shadow: var(--lift); border-top: 5px solid var(--marigold-strong); }
+  .rec b { display: block; color: var(--soil-deep); line-height: 1.2; }
+  .rec small { display: block; color: var(--muted); font-weight: 700; margin-top: 4px; font-size: .78rem; }
+  .kv { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+  .kv span { font-size: .72rem; font-weight: 900; border-radius: 999px; padding: 2px 8px; background: var(--basil-soft); color: var(--basil-dark); }
+  .kv span.y { background: var(--marigold); color: var(--marigold-ink); } .kv span.i { background: var(--ice); color: var(--ice-ink); } .kv span.p { background: var(--pink-deep); color: var(--berry); }
+  .money { margin-top: 12px; background: #fff; border-radius: 18px; padding: 12px; box-shadow: var(--lift); }
+  .money div { display: flex; justify-content: space-between; font-weight: 700; color: var(--muted); padding: 2px 0; }
+  .money div.t { color: var(--soil-deep); font-weight: 900; font-size: 1.15rem; border-top: 2px dashed var(--pink-deep); margin-top: 6px; padding-top: 6px; }
+  .money div.d { color: var(--basil-dark); }
+  .report { margin-top: 12px; background: linear-gradient(160deg, #F1F7FE, #E1ECF8); color: var(--ice-ink); border-radius: 18px; padding: 12px; font-weight: 600; }
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .ro { font-size: 1.2rem; color: var(--basil-dark); padding: 8px 0; }
+  .target { margin-bottom: 18px; }
+  .target small { margin-top: 20px !important; }
+  .target .hd { display: flex; justify-content: space-between; font-weight: 800; color: var(--soil-deep); font-size: .9rem; }
+  .meter { position: relative; height: 16px; border-radius: 999px; background: var(--soil-soft); overflow: visible; margin-top: 6px; }
+  .meter i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: linear-gradient(90deg, var(--basil), #7FB77A); }
+  .meter i.y { background: linear-gradient(90deg, var(--marigold-strong), var(--gold2)); } .meter i.b { background: linear-gradient(90deg, #4E86C2, var(--iceblue)); }
+  .meter .goal { position: absolute; top: -5px; bottom: -5px; width: 3px; background: var(--berry); border-radius: 2px; }
+  .meter .goal::after { content: attr(data-l); position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-size: .68rem; font-weight: 900; color: var(--berry); white-space: nowrap; }
+  .target small { display: block; color: var(--muted); font-weight: 700; margin-top: 6px; font-size: .78rem; }
+  .market { background: linear-gradient(180deg, #FFFDF7 0%, var(--card) 60%); border-top: 6px solid var(--marigold-strong); }
+  .mk-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .mk-bar .filters { margin: 0; }
+  .mk-bar .filters button[aria-pressed="true"] { background: var(--basil); border-color: var(--basil); color: #fff; }
+  .mk-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+  .mk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; }
+  .pc { background: #fff; border-radius: 20px; padding: 12px; box-shadow: var(--lift); display: flex; flex-direction: column; gap: 6px; border: 2px solid transparent; transition: transform .15s, border-color .15s; }
+  .pc:hover { transform: translateY(-2px); border-color: var(--marigold); }
+  .pc .top { display: flex; gap: 8px; align-items: flex-start; }
+  .pc .nm { font-weight: 900; color: var(--soil-deep); line-height: 1.2; font-size: .95rem; }
+  .pc .vd { font-size: .76rem; color: var(--muted); font-weight: 800; }
+  .pc .pr { font-size: 1.3rem; font-weight: 900; color: var(--basil-dark); }
+  .pc .rt { color: #C98A12; font-weight: 900; font-size: .8rem; }
+  .pc .best { font-size: .68rem; font-weight: 900; background: linear-gradient(90deg, var(--gold1), var(--gold2)); color: #4A3300; border-radius: 999px; padding: 1px 8px; align-self: flex-start; }
+  .pc button { margin-top: auto; }
+  .cart { position: sticky; top: 18px; background: #fff; border-radius: 22px; padding: 14px; box-shadow: var(--shadow); border-top: 5px solid var(--basil); }
+  .cart h3 { display: flex; align-items: center; gap: 8px; }
+  .cl { display: flex; gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--pink-deep); font-size: .85rem; font-weight: 700; }
+  .cl .nm { flex: 1; min-width: 0; }
+  .cl .nm small { display: block; color: var(--muted); font-size: .72rem; }
+  .qty { display: inline-flex; align-items: center; gap: 4px; }
+  .qty button { padding: 2px 8px; font-size: .8rem; border-radius: 8px; background: var(--soil-soft); color: var(--soil-deep); box-shadow: none; }
+  .orders .post { border-left: 6px solid var(--iceblue); }
+  .ostep { display: flex; gap: 4px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .ostep span { flex: 1; min-width: 110px; text-align: center; font-size: .74rem; font-weight: 900; padding: 5px 6px; border-radius: 999px; background: var(--soil-soft); color: var(--muted); }
+  .ostep span.done { background: var(--basil); color: #fff; }
+  .ostep span.now { background: var(--marigold); color: var(--marigold-ink); }
+  .ltable td { font-size: .82rem; white-space: normal; }
+  .ltable code { font-size: .72rem; color: var(--muted); }
+  .ltable .pos { color: var(--basil-dark); font-weight: 900; } .ltable .neg { color: var(--berry); font-weight: 900; }
+  .certificate { border-radius: 22px; padding: 22px; text-align: center; color: var(--soil-deep); position: relative;
+    background: radial-gradient(circle at 50% 0%, #FFF8E6, #FFFDF8 60%); border: 6px double var(--marigold-strong); box-shadow: inset 0 0 0 6px #fff; }
+  .certificate h3 { font-size: 1.4rem; letter-spacing: .04em; margin: 8px 0 2px; justify-content: center; }
+  .certificate .who { font-size: 1.25rem; font-weight: 900; color: var(--basil-dark); margin: 6px 0; }
+  .certificate .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+  .certificate .facts div { background: #fff; border-radius: 14px; padding: 8px; font-size: .74rem; font-weight: 800; color: var(--muted); }
+  .certificate .facts b { display: block; font-size: 1.15rem; color: var(--soil-deep); }
+  .certificate .medal { margin: 0 auto; width: 74px; height: 74px; font-size: 2rem; }
+  .certificate p { font-size: .86rem; font-weight: 600; }
+  .certificate code { font-size: .66rem; word-break: break-all; color: var(--muted); }
+  .revcard { border-top: 6px solid var(--berry); }
+  .rev-wrap { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: center; }
+  .revtotal { font-size: 2.6rem; font-weight: 900; color: var(--berry); line-height: 1; }
+  .revtotal small { display: block; font-size: .85rem; color: var(--muted); font-weight: 800; margin-top: 4px; }
+  .rs-row { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--pink-deep); font-weight: 700; font-size: .9rem; }
+  .rs-row i { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+  .rs-row span { flex: 1; } .rs-row b { color: var(--soil-deep); }
+  .rs-row small { color: var(--basil-dark); font-weight: 800; font-size: .72rem; margin-left: 4px; }
+  .ngofree { margin-left: auto; background: linear-gradient(90deg, var(--basil), #6FA56A); color: #fff; border-radius: 999px; padding: 4px 14px; font-size: .85rem; font-weight: 900; box-shadow: 0 3px 0 var(--basil-dark); }
+  .chartbox { position: relative; height: 280px; } .chartbox.sm { height: 220px; }
+  .govcard { border-top: 6px solid var(--iceblue); }
+  .govcard tr.you { background: var(--marigold); }
+  .citybox { background: #fff; border-radius: 18px; padding: 12px 14px; box-shadow: var(--lift); }
+  .citybox ul { margin: 0; padding-left: 18px; font-weight: 600; font-size: .9rem; }
+  .citybox li { margin: 4px 0; }
+  .citybox.road { background: linear-gradient(160deg, #F1F7FE, #E1ECF8); }
+  dialog#invoiceDlg { border: 0; border-radius: 22px; padding: 20px; max-width: 760px; width: calc(100% - 32px); box-shadow: var(--shadow); }
+  dialog#invoiceDlg::backdrop { background: rgba(20, 40, 20, .55); }
+  .inv h3 { margin: 0; font-size: 1.3rem; }
+  .inv .meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: .85rem; font-weight: 700; color: var(--muted); margin: 8px 0 12px; }
+  .inv .tot td { font-weight: 900; }
+  .inv .demo-stamp { display: inline-block; border: 3px solid var(--berry); color: var(--berry); border-radius: 10px; padding: 3px 10px; font-weight: 900; transform: rotate(-3deg); margin-top: 10px; }
+  @media (max-width: 1100px) { .p4hero, .rev-wrap, .mk-wrap { grid-template-columns: 1fr; } .cart { position: static; } }
+  @media (max-width: 560px) { .bigtiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .p4line { font-size: 1.45rem; } .certificate .facts { grid-template-columns: 1fr 1fr; } }
+  .emo.i { background: var(--ice); }
+  @media (max-width: 1100px) { .p3grid, .p3hero { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; padding: 12px; gap: 14px; }
+    .side { position: static; max-height: none; padding: 12px; }
+    .nav { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+    .nav .grp { display: none; }
+    .nav button { width: auto; flex-shrink: 0; }
+    .nav button .tx small { display: none; }
+    .grid, .grid2 { grid-template-columns: 1fr; }
+    .ttl h1 { font-size: 1.45rem; }
+    .loop { grid-template-columns: 1fr 1fr; }
+    .top-r { width: 100%; justify-content: space-between; }
+  }
+  @media (max-width: 560px) {
+    .row2, .row3 { grid-template-columns: 1fr; }
+    .switch { width: 214px; font-size: .88rem; }
+    .modebox .lbl { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <header>
+<div class="deco" aria-hidden="true">
+  <span style="top:6%;left:30%">🌿</span><span style="top:22%;right:3%">🍅</span><span style="top:58%;left:22%">🥕</span>
+  <span style="bottom:6%;right:12%">🍃</span><span style="top:40%;right:30%">🫑</span><span style="bottom:18%;left:48%">🌱</span>
+  <span style="top:80%;left:3%">🧅</span><span style="top:12%;right:40%">🌾</span>
+</div>
+
+<div class="app">
+  <aside class="side" aria-label="CirKit navigation">
     <div class="brand">
       <div class="logo" aria-hidden="true">🌿</div>
-      <div><h1>CirKit</h1><p class="sub">Pillar 1 · Demand planner for food institutions</p></div>
+      <div><b>CirKit</b><small>Circular Kitchen Exchange</small></div>
     </div>
-    <div class="status"><span class="dot" id="dot"></span><span id="statusText">Waking up the agents…</span></div>
-  </header>
-
-  <section class="card">
-    <h2>Impact so far</h2>
-    <div class="stats" id="stats"></div>
-  </section>
-
-  <section class="card">
-    <h2>Rolling 10-day memory (first in, first out)</h2>
-    <div class="queue" id="queue"></div>
-    <p class="qnote" id="qnote"></p>
-    <canvas id="chart" height="80" style="margin-top:10px"></canvas>
-  </section>
-
-  <section class="card">
-    <div class="actions">
-      <button id="runBtn">1 · Run planning agents</button>
-      <button id="approveBtn" class="soil" disabled>2 · Approve purchase order</button>
-      <button id="closeBtn" class="ghost" disabled>3 · Close the day and roll the window</button>
+    <nav class="nav" role="tablist" aria-label="CirKit sections" aria-orientation="vertical" id="sideNav">
+      <button role="tab" id="tab-dashboard" aria-controls="panel-dashboard" data-tab="dashboard"><span class="emo sm">🏠</span><span class="tx">Dashboard<small>Everything at a glance</small></span></button>
+      <div class="grp">Kitchen pillars</div>
+      <button role="tab" id="tab-planner" aria-controls="panel-planner" data-tab="planner"><span class="emo sm">📈</span><span class="tx">Demand planner<small>Pillar 1 · Plan</small></span></button>
+      <button role="tab" id="tab-expiry" aria-controls="panel-expiry" data-tab="expiry"><span class="emo sm">⏳</span><span class="tx">Expiry &amp; batches<small>Pillar 2 · Track</small></span><span class="alert" id="tabAlert" hidden></span></button>
+      <button role="tab" id="tab-rescue" aria-controls="panel-rescue" data-tab="rescue"><span class="emo sm">🤝</span><span class="tx">Redistribution<small>Pillar 3 · Share</small></span><span class="alert g" id="p3Alert" hidden></span></button>
+      <button role="tab" id="tab-impact" aria-controls="panel-impact" data-tab="impact"><span class="emo sm">💚</span><span class="tx">4 · Revenue &amp; Impact<small>Go green, savings come full circle</small></span></button>
+    </nav>
+    <div class="side-foot">
+      <label for="apiInput">🔌 Backend</label><input id="apiInput">
+      <div class="row"><button class="ghost small" id="saveApi">Connect</button><button class="ghost small" id="resetBtn">↺ Reset demo</button></div>
     </div>
-    <label class="qnote" style="display:flex;gap:8px;align-items:center;margin-top:10px;cursor:pointer">
-      <input type="checkbox" id="stress"> Stress test: make the first forecast wrong and watch the critic agent send it back
-    </label>
-  </section>
+  </aside>
 
-  <div class="grid" style="margin-top:18px">
+  <main>
+    <header class="topbar">
+      <div class="ttl"><span class="emo lg" id="pageEmo" aria-hidden="true">🏠</span><div><h1 id="pageTitle">Kitchen dashboard</h1><p id="pageSub">Everything CirKit's agents are doing, at a glance</p></div></div>
+      <div class="top-r">
+        <div class="status"><span class="dot" id="dot"></span><span id="statusText">Waking up the agents…</span></div>
+        <div class="modebox">
+          <span class="lbl" id="modeLbl">Leftover<br>food</span>
+          <button class="switch" id="modeSwitch" role="switch" aria-checked="false" aria-labelledby="modeLbl" title="Donate good food to people, or recycle food that is not fit for people">
+            <span class="knob" aria-hidden="true"></span>
+            <span class="opt d"><span class="e" aria-hidden="true">🤝</span>Donate</span>
+            <span class="opt r"><span class="e" aria-hidden="true">♻️</span>Recycle</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <section role="tabpanel" id="panel-dashboard" aria-labelledby="tab-dashboard">
+    <div class="hero">
+      <div class="kicker">Team Yukthi · Agent X 2026</div>
+      <div class="line">Your kitchen's waste is someone's raw material.</div>
+      <div class="loop">
+        <button class="node live" data-go="planner"><span class="n">Pillar 1 · Plan</span><span class="t">📈 Demand planner</span><span class="s">Cook and buy only what will be eaten</span><span class="lv">LIVE</span></button>
+        <button class="node live" data-go="expiry"><span class="n">Pillar 2 · Track</span><span class="t">⏳ Expiry &amp; batches</span><span class="s">Catch food before it expires, FEFO</span><span class="lv">LIVE</span></button>
+        <button class="node live" data-go="rescue"><span class="n">Pillar 3 · Share</span><span class="t">🤝 Redistribution</span><span class="s">Good food to NGOs, the rest recycled</span><span class="lv">LIVE</span></button>
+        <button class="node live" data-go="impact"><span class="n">Pillar 4 · Earn</span><span class="t">💚 Revenue &amp; Impact</span><span class="s">Go green, and the savings come full circle</span><span class="lv">LIVE</span></button>
+      </div>
+    </div>
+
     <section class="card">
-      <h2>Agents at work</h2>
-      <ul class="trace" id="trace"><li class="empty" style="animation:none">Press "Run planning agents" to watch them think.</li></ul>
+      <h2><span class="emo sm g">✨</span> Kitchen impact at a glance</h2>
+      <div class="stats" id="dashStats"></div>
     </section>
-    <section class="card" id="planCard"><h2>Today's plan</h2><p class="empty">The cooking and buying plan will appear here.</p></section>
-  </div>
 
-  <section class="card" id="outcomeCard" hidden></section>
+    <div class="grid2" style="margin-top:20px">
+      <section class="card">
+        <h2><span class="emo sm y">✅</span> Today in the kitchen</h2>
+        <ul class="todo" id="todo"></ul>
+      </section>
+      <section class="card">
+        <h2><span class="emo sm p">⏰</span> Next to expire</h2>
+        <div class="mini" id="dashExpiry"><p class="empty">Loading batches…</p></div>
+        <p class="qnote"><a href="#expiry" data-go="expiry" style="color:var(--basil-dark);font-weight:800">Open the expiry radar →</a></p>
+      </section>
+    </div>
 
-  <footer>
-    <label for="apiInput">Backend</label><input id="apiInput" size="34">
-    <button class="ghost" id="saveApi">Connect</button>
-    <button class="ghost" id="resetBtn">Reset demo</button>
-  </footer>
-</main>
+    <section class="card">
+      <h2><span class="emo sm g">📊</span> Customers and leftovers, last 10 days</h2>
+      <canvas id="dashChart" height="70" aria-label="Customers per day and portions left over, last 10 days"></canvas>
+    </section>
+  </section>
+
+  <!-- ===================== PILLAR 1 ===================== -->
+  <section role="tabpanel" id="panel-planner" aria-labelledby="tab-planner" hidden>
+    <section class="card">
+      <h2><span class="emo sm g">🏆</span> Impact so far</h2>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="emo sm b">🗂️</span> Rolling 10-day memory (first in, first out)</h2>
+      <div class="queue" id="queue"></div>
+      <p class="qnote" id="qnote"></p>
+      <canvas id="chart" height="80" style="margin-top:10px"></canvas>
+    </section>
+
+    <section class="card">
+      <div class="actions">
+        <button id="runBtn">1 · Run planning agents</button>
+        <button id="approveBtn" class="soil" disabled>2 · Approve purchase order</button>
+        <button id="closeBtn" class="ghost" disabled>3 · Close the day and roll the window</button>
+      </div>
+      <label class="qnote" style="display:flex;gap:8px;align-items:center;margin-top:10px;cursor:pointer">
+        <input type="checkbox" id="stress"> Stress test: make the first forecast wrong and watch the critic agent send it back
+      </label>
+      <p class="qnote">📦 Approved orders arrive as tagged batches in Pillar 2. Closing the day uses stock first-expired-first-out.</p>
+    </section>
+
+    <div class="grid" style="margin-top:20px">
+      <section class="card">
+        <h2><span class="emo sm g">🧠</span> Agents at work</h2>
+        <ul class="trace" id="trace"><li class="empty" style="animation:none">Press "Run planning agents" to watch them think.</li></ul>
+      </section>
+      <section class="card" id="planCard"><h2>Today's plan</h2><p class="empty">The cooking and buying plan will appear here.</p></section>
+    </div>
+
+    <section class="card" id="outcomeCard" hidden></section>
+  </section>
+
+  <!-- ===================== PILLAR 2 ===================== -->
+  <section role="tabpanel" id="panel-expiry" aria-labelledby="tab-expiry" hidden>
+    <section class="card">
+      <div class="clockbar">
+        <div class="clock">
+          <div class="face" aria-hidden="true">🕖</div>
+          <div><div class="tm" id="clockTime">--:--</div><div class="dt" id="clockDate">Kitchen clock</div></div>
+        </div>
+        <div class="seg" aria-label="Advance the demo clock">
+          <span class="qnote" style="margin:0">Fast-forward:</span>
+          <button class="ghost small" data-hours="1">+1 h</button>
+          <button class="ghost small" data-hours="3">+3 h</button>
+          <button class="ghost small" data-hours="6">+6 h</button>
+          <button class="ghost small" data-hours="12">+12 h</button>
+        </div>
+      </div>
+      <div class="stats" id="p2Stats" style="margin-top:14px"></div>
+      <div class="toolbar">
+        <button id="p2Run">Run expiry agents</button>
+        <label class="qnote" style="display:flex;gap:8px;align-items:center;margin:0;cursor:pointer">
+          <input type="checkbox" id="p2Stress"> Stress test: the router's first answer is unsafe, watch the safety critic reject it
+        </label>
+      </div>
+      <div id="p2Flash"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="emo sm p">📡</span> Expiry radar</h2>
+      <div class="filters" role="group" aria-label="Filter batches" id="p2Filters">
+        <button data-f="risk" aria-pressed="true">Needs attention</button>
+        <button data-f="all" aria-pressed="false">All batches</button>
+        <button data-f="expired" aria-pressed="false">Expired</button>
+        <button data-f="fresh" aria-pressed="false">Fresh</button>
+      </div>
+      <div class="radar" id="radar"></div>
+      <div class="legend">
+        <span style="--c:var(--basil)">Fresh</span><span style="--c:#E9B665">At risk (≤ 48 h)</span>
+        <span style="--c:var(--berry)">Critical (≤ 12 h)</span><span style="--c:var(--soil)">Expired</span>
+        <span>Ring = shelf life left · "Pick 1st" = FEFO order</span>
+      </div>
+    </section>
+
+    <div class="grid" style="margin-top:20px">
+      <section class="card">
+        <h2><span class="emo sm g">🧠</span> Agents at work</h2>
+        <ul class="trace" id="p2Trace"><li class="empty" style="animation:none">Press "Run expiry agents" to scan every batch.</li></ul>
+      </section>
+      <section class="card" id="p2PlanCard">
+        <h2>Routing plan</h2>
+        <p class="empty">The agents' plan for at-risk food will appear here.</p>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2><span class="emo sm p">💸</span> Value at risk by ingredient</h2>
+      <p class="qnote" id="riskNote" style="margin:0 0 8px"></p>
+      <canvas id="riskChart" height="90" aria-label="Rupees of food forecast to expire unused, by ingredient"></canvas>
+      <div class="table-wrap"><table class="sr" id="riskTable"></table></div>
+    </section>
+
+    <p class="note" id="p2About" style="margin-top:20px"></p>
+  </section>
+
+  <!-- ===================== PILLAR 3 ===================== -->
+  <section role="tabpanel" id="panel-rescue" aria-labelledby="tab-rescue" hidden>
+    <div class="p3hero">
+      <div>
+        <div class="kicker">Pillar 3 · Share</div>
+        <div class="line">Good food feeds people.<br>The rest feeds the soil. 🌱</div>
+        <p>Post cooked leftovers. Safety rules set a consume-by time, agents find the nearest NGO or recycle partner, and a critic checks every match.</p>
+      </div>
+      <div class="stats" id="p3Totals"></div>
+    </div>
+
+    <div class="p3grid">
+      <section class="card" id="postCard">
+        <h2><span class="emo sm y">📝</span> Post leftover food</h2>
+        <div class="ribbon" id="modeRibbon" role="button" tabindex="0" title="Switch between Donate and Recycle"></div>
+        <form id="postForm" novalidate>
+          <fieldset class="fs">
+            <legend><span class="emo sm">🏫</span> Who is posting</legend>
+            <label class="fld">Kitchen / institution name<input id="fKitchen" maxlength="80" autocomplete="off" placeholder="e.g. Sri Sai canteen"></label>
+            <div class="chips" role="radiogroup" aria-label="Institution type">
+              <label><input type="radio" name="inst" value="canteen"><span><span class="e">🏫</span>Canteen</span></label>
+              <label><input type="radio" name="inst" value="restaurant"><span><span class="e">🍽️</span>Restaurant</span></label>
+              <label><input type="radio" name="inst" value="cafeteria"><span><span class="e">☕</span>Cafeteria</span></label>
+              <label><input type="radio" name="inst" value="catering"><span><span class="e">🎪</span>Catering</span></label>
+              <label><input type="radio" name="inst" value="shelter"><span><span class="e">🏠</span>Food shelter</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fs">
+            <legend><span class="emo sm">🍛</span> The food</legend>
+            <div class="chips only-recycle" role="radiogroup" aria-label="What are you recycling?" style="margin:0 0 8px">
+              <label><input type="radio" name="rkind" value="veg_scraps"><span><span class="e">🥕</span>Veg peels &amp; scraps</span></label>
+              <label><input type="radio" name="rkind" value="cooked_unfit"><span><span class="e">🍲</span>Cooked, not fit for people</span></label>
+              <label><input type="radio" name="rkind" value="plate_waste"><span><span class="e">🍽️</span>Plate waste</span></label>
+              <label><input type="radio" name="rkind" value="used_oil"><span><span class="e">🛢️</span>Used cooking oil</span></label>
+            </div>
+            <div class="row3">
+              <label class="fld">Dish name<input id="fDish" maxlength="80" autocomplete="off" placeholder="e.g. Veg biryani"></label>
+              <label class="fld">Quantity<input id="fQty" type="number" min="0.1" step="0.1" inputmode="decimal"></label>
+              <label class="fld">Unit<select id="fUnit"><option value="portions">portions</option><option value="kg">kg</option><option value="litres" class="only-recycle">litres</option></select></label>
+            </div>
+            <div class="chips no-oil" role="radiogroup" aria-label="Veg or non-veg">
+              <label><input type="radio" name="diet" value="veg"><span><i class="vm" aria-hidden="true"></i>Veg</span></label>
+              <label><input type="radio" name="diet" value="nonveg"><span><i class="vm nv" aria-hidden="true"></i>Non-veg / egg</span></label>
+            </div>
+            <label class="check only-recycle no-oil"><input type="checkbox" id="fSpoiled"> 🤢 Looks spoiled (sour, moldy or bad smell), never for animals</label>
+          </fieldset>
+
+          <fieldset class="fs">
+            <legend><span class="emo sm">⏱️</span> Food safety</legend>
+            <div class="row2">
+              <label class="fld">Cooked at<input id="fCooked" type="time"></label>
+              <div class="fld">Quick pick<div class="quick" id="timeQuick">
+                <button type="button" data-ago="0">Just now</button><button type="button" data-ago="60">1 h ago</button>
+                <button type="button" data-ago="180">3 h ago</button><button type="button" data-ago="420">7 h ago</button></div></div>
+            </div>
+            <div class="chips no-oil" role="radiogroup" aria-label="How is it kept?">
+              <label><input type="radio" name="storage" value="hot"><span><span class="e">🔥</span>Hot (60 °C+)</span></label>
+              <label><input type="radio" name="storage" value="chilled"><span><span class="e">❄️</span>Chilled (5 °C or less)</span></label>
+              <label><input type="radio" name="storage" value="room"><span><span class="e">🌡️</span>Room temperature</span></label>
+            </div>
+            <div class="safety" id="safetyBox" aria-live="polite"></div>
+          </fieldset>
+
+          <fieldset class="fs">
+            <legend><span class="emo sm">🚚</span> Pickup</legend>
+            <div class="chips" role="radiogroup" aria-label="Packaging">
+              <label><input type="radio" name="pack" value="container"><span><span class="e">🥡</span>Containers</span></label>
+              <label><input type="radio" name="pack" value="trays"><span><span class="e">🍱</span>Trays</span></label>
+              <label><input type="radio" name="pack" value="bulk"><span><span class="e">🪣</span>Bulk vessel</span></label>
+            </div>
+            <label class="fld" style="margin-top:8px">Pickup address<input id="fAddr" maxlength="120" autocomplete="off" placeholder="e.g. Gate 2, main road, Saroornagar"></label>
+            <div class="row2">
+              <label class="fld">Contact name<input id="fContact" maxlength="60" autocomplete="off"></label>
+              <label class="fld">Phone<input id="fPhone" type="tel" maxlength="14" inputmode="tel" autocomplete="off" placeholder="10 digits"></label>
+            </div>
+          </fieldset>
+
+          <div id="p3Flash" aria-live="polite"></div>
+          <div class="actions" style="margin-top:14px">
+            <button id="postBtn" class="bigbtn" type="submit"><span class="e" aria-hidden="true">🤝</span><span id="postTxt">Share Food</span></button>
+          </div>
+          <label class="check"><input type="checkbox" id="p3Stress"> Stress test: the first match is deliberately wrong (a far-away NGO, or unsafe food to people). Watch the critic send it back.</label>
+        </form>
+      </section>
+
+      <section class="card" id="nearCard" style="margin-top:0">
+        <h2><span class="emo sm g" id="nearEmo">📍</span> <span id="nearTitle">Who's nearby</span>
+          <label class="focus">for <select id="focusSel" aria-label="Which food to match"></select></label></h2>
+        <p class="qnote" id="nearNote" style="margin:-4px 0 10px"></p>
+        <div id="chatBoard" aria-live="polite"></div>
+        <div class="near" id="nearList"><p class="empty">Loading partners…</p></div>
+        <p class="qnote" style="font-size:.78rem;margin:10px 0 0">Demo data · mock organisations · estimated distances</p>
+      </section>
+    </div>
+
+    <section class="card">
+        <h2><span class="emo sm g">🧠</span> Agents at work</h2>
+        <ul class="trace" id="p3Trace"><li class="empty" style="animation:none">Post some food to watch the safety, matcher, router, critic and outreach agents work.</li></ul>
+    </section>
+
+    <section class="card">
+      <h2><span class="emo sm y">📬</span> Active posts <span class="qnote" style="margin:0;font-size:.82rem">posted → matched → accepted → on the way → picked up</span></h2>
+      <div class="posts" id="p3Posts"><p class="empty">No food posted yet today.</p></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="emo sm">🧾</span> Records for Pillar 4 <span class="qnote" style="margin:0;font-size:.82rem">verified pickups only · a donation is verified when the NGO sends "Food collected ✅" · carbon credits come later</span></h2>
+      <div class="table-wrap" id="p3Records"><p class="empty">Records appear once food is picked up.</p></div>
+    </section>
+
+  </section>
+  <!-- ===================== PILLAR 4 · REVENUE & IMPACT ===================== -->
+  <section role="tabpanel" id="panel-impact" aria-labelledby="tab-impact" hidden>
+    <div class="p4hero">
+      <div class="p4hero-l">
+        <div class="kicker">Pillar 4 · Revenue &amp; Impact</div>
+        <div class="p4line">Go green, and the savings come full circle. <span aria-hidden="true">♻️💚</span></div>
+        <div class="medal-row" id="p4Medal"></div>
+      </div>
+      <div class="bigtiles" id="p4Tiles"></div>
+    </div>
+    <p class="honesty">🪙 Green Credit Points are CirKit loyalty points, <b>not carbon credits</b> · all vendors, prices, savings and CO₂ figures are <b>mock estimates</b> · demo orders only, <b>no real payment is processed</b></p>
+
+    <div class="p3grid">
+      <section class="card" style="margin-top:0">
+        <h2><span class="emo sm g">🧠</span> Impact agents</h2>
+        <div class="actions">
+          <button id="p4Run" class="bigbtn"><span class="e" aria-hidden="true">🚀</span>Run impact agents</button>
+        </div>
+        <label class="check"><input type="checkbox" id="p4Stress"> Stress test: inject a fake donation (must be rejected, points unchanged) and an over-budget first recommendation (the critic must catch it)</label>
+        <ul class="trace" id="p4Trace" style="margin-top:10px"><li class="empty" style="animation:none">collector → verifier → scorer → green upgrade advisor → procurement → critic → manager approval → reporter</li></ul>
+      </section>
+      <section class="card" style="margin-top:0" id="p4Plan">
+        <h2><span class="emo sm y">🛒</span> Recommended upgrades &amp; draft order</h2>
+        <p class="empty">Run the impact agents: the advisor picks the top 3 upgrades for your kitchen and the procurement agent drafts the best-value order.</p>
+      </section>
+    </div>
+
+    <div class="p3grid">
+      <section class="card" style="margin-top:0">
+        <h2><span class="emo sm b">⚡</span> Kitchen energy profile <span class="tagp b" style="font-size:.72rem">mock · editable</span></h2>
+        <form id="profileForm" class="pgrid" novalidate>
+          <label class="fld">🔥 LPG cylinders / month<input type="number" min="0" step="0.5" name="lpg_cylinders"></label>
+          <label class="fld">🔌 Electricity units / month<input type="number" min="0" step="10" name="electricity_units"></label>
+          <label class="fld">🧊 Fridge age (years)<input type="number" min="0" step="1" name="fridge_age"></label>
+          <label class="fld">💧 Water use (kL / month)<input type="number" min="0" step="1" name="water_kl"></label>
+          <label class="fld">💰 Monthly budget for upgrades (₹)<input type="number" min="0" step="1000" name="budget"></label>
+          <div class="fld">🛵 EV pickups share (from Pillar 3)<b id="evShare" class="ro">—</b></div>
+          <label class="check" style="margin:0;grid-column:1/-1"><input type="checkbox" name="solar"> ☀️ Solar already installed</label>
+          <div class="actions" style="grid-column:1/-1"><button class="small" type="submit">Save profile</button><span class="demo" id="profileMsg"></span></div>
+        </form>
+      </section>
+      <section class="card" style="margin-top:0">
+        <h2><span class="emo sm g">🎯</span> Targets</h2>
+        <div id="p4Targets"></div>
+      </section>
+    </div>
+
+    <section class="card market">
+      <h2><span class="emo sm y">🏪</span> GreenLoop Marketplace <span class="qnote" style="margin:0;font-size:.82rem">green kitchen upgrades from mock vendors · Green Points pay up to 10%</span></h2>
+      <div class="mk-bar">
+        <div class="filters" role="group" aria-label="Category" id="mkCats"></div>
+        <label class="focus" style="margin-left:auto">Sort by <select id="mkSort" aria-label="Sort products">
+          <option value="payback">Fastest payback</option><option value="co2">Biggest CO₂ cut</option>
+          <option value="price">Lowest price</option><option value="rating">Best rating</option></select></label>
+      </div>
+      <div class="mk-wrap">
+        <div class="mk-grid" id="mkGrid"></div>
+        <aside class="cart" id="cart" aria-label="Cart"></aside>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="emo sm">📦</span> Orders &amp; invoices <span class="qnote" style="margin:0;font-size:.82rem">placed → vendor confirmed → dispatched → delivered</span></h2>
+      <div class="posts" id="p4Orders"><p class="empty">No orders yet. Approve the agents' order or check out from the marketplace.</p></div>
+    </section>
+
+    <div class="p3grid">
+      <section class="card" style="margin-top:0">
+        <h2><span class="emo sm b">🔗</span> Green Credit ledger <span class="tagp b" style="font-size:.72rem">SHA-256 hash chain</span></h2>
+        <div class="actions"><button class="small" id="ledgerVerify">🔐 Verify chain</button><button class="berry small" id="ledgerTamper">🧪 Tamper test</button></div>
+        <div id="ledgerMsg"></div>
+        <div class="table-wrap" id="ledgerTable" style="margin-top:10px"></div>
+      </section>
+      <section class="card" style="margin-top:0">
+        <h2><span class="emo sm y">🏅</span> Green Kitchen Certificate <button class="small ghost" id="certPrint" style="margin-left:auto">🖨️ Print / Save as PDF</button></h2>
+        <div id="cert"></div>
+      </section>
+    </div>
+
+    <section class="card revcard">
+      <h2><span class="emo sm y">💸</span> How CirKit earns <span class="ngofree">🤝 NGOs: always free</span></h2>
+      <div class="rev-wrap">
+        <div>
+          <div class="revtotal" id="revTotal"></div>
+          <div id="revStreams"></div>
+          <div id="revSelf"></div>
+        </div>
+        <div class="chartbox"><canvas id="revChart" aria-label="Monthly revenue by stream"></canvas></div>
+      </div>
+    </section>
+
+    <section class="card govcard">
+      <h2><span class="emo sm">🏛️</span> Government · Pilot dashboard <span class="tagp" id="govCity" style="font-size:.72rem"></span></h2>
+      <div class="p3grid" style="margin-top:0">
+        <div>
+          <h3>🏆 Green kitchen leaderboard</h3>
+          <div class="table-wrap" id="govBoard"></div>
+          <h3 style="margin-top:16px">🗑️ 30% landfill diversion goal</h3>
+          <div id="govGoal"></div>
+        </div>
+        <div>
+          <h3>📊 Points by kitchen</h3>
+          <div class="chartbox sm"><canvas id="govChart" aria-label="Green Credit Points by kitchen"></canvas></div>
+          <h3 style="margin-top:12px">♻️ Verified kg by destination</h3>
+          <div class="chartbox sm"><canvas id="govDest" aria-label="Verified kilograms by destination"></canvas></div>
+        </div>
+      </div>
+      <h3 style="margin-top:16px">✅ Certified NGO registry <span class="demo">(mock)</span></h3>
+      <div class="table-wrap" id="govNgos"></div>
+      <div class="p3grid">
+        <div class="citybox"><h3>📰 City summary</h3><ul id="govSummary"></ul></div>
+        <div class="citybox road"><h3>🛣️ Future roadmap</h3><ul id="govRoad"></ul></div>
+      </div>
+    </section>
+
+    <dialog id="invoiceDlg" aria-label="Invoice"><div id="invoiceBody"></div>
+      <div class="actions" style="justify-content:flex-end;margin-top:12px"><button class="ghost small" id="invClose">Close</button><button class="small" id="invPrint">🖨️ Print / Save as PDF</button></div></dialog>
+  </section>
+  </main>
+</div>
 
 <script>
-const DEFAULT_API = "https://cirkit-e9gr.onrender.com"; // paste your Render URL here after deploying
+const DEFAULT_API = "https://YOUR-APP.onrender.com"; // paste your Render URL here after deploying
 const local = ["localhost", "127.0.0.1", ""].includes(location.hostname);
-let API = localStorage.getItem("cirkit_api") || (local ? "http://localhost:8000" : DEFAULT_API);
-let chart = null, lastAdded = null;
+let API = new URLSearchParams(location.search).get("api") || localStorage.getItem("cirkit_api") || (local ? "http://localhost:8000" : DEFAULT_API);
+let chart = null, dashChart = null, riskChart = null, lastAdded = null, S1 = null, S2 = null, S3 = null, radarFilter = "risk";
 const $ = id => document.getElementById(id);
 const rs = n => "₹" + Math.round(n).toLocaleString("en-IN");
 const fmt = d => new Date(d + "T00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 const wk = d => new Date(d + "T00:00").toLocaleDateString("en-IN", { weekday: "short" });
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const LABEL_COLOR = { normal: "#9CC48F", weekend: "#C9A98E", festival: "#F2B45C", exam: "#8DB6DE", holiday: "#E79AB0" };
 
 async function api(path, opts = {}) {
-  const r = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...opts });
+  let r;
+  try { r = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...opts }); }
+  catch (e) { throw new Error(`Can't reach the backend at ${API}. Is uvicorn running?`); }
   const body = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(body.detail || r.statusText);
+  if (r.status === 404) throw new Error(`${opts.method || "GET"} ${path.split("?")[0]} was not found on ${API}. That backend is an older build: stop it and run "uvicorn main:app --reload" inside cirkit/backend.`);
+  if (!r.ok) throw new Error(typeof body.detail === "string" ? body.detail : body.detail ? JSON.stringify(body.detail) : r.statusText);
   return body;
 }
 
+/* ---------------- tabs (left sidebar) ---------------- */
+const PAGES = {
+  dashboard: ["🏠", "Kitchen dashboard", "Everything CirKit's agents are doing, at a glance"],
+  planner: ["📈", "Demand planner", "Pillar 1 · cook and buy only what will be eaten"],
+  expiry: ["⏳", "Expiry & batches", "Pillar 2 · catch food before it expires"],
+  rescue: ["🤝", "Redistribution network", "Pillar 3 · good food to people, the rest recycled"],
+  impact: ["💚", "Revenue & Impact", "Pillar 4 · Go green, and the savings come full circle."] 
+};
+let currentTab = "dashboard";
+function showTab(name) {
+  currentTab = name;
+  document.querySelectorAll("[role=tab][data-tab]").forEach(t => {
+    const on = t.dataset.tab === name;
+    t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1;
+    $("panel-" + t.dataset.tab).hidden = !on;
+  });
+  const [e, h, p] = PAGES[name];
+  $("pageEmo").textContent = e; $("pageTitle").textContent = h; $("pageSub").textContent = p;
+  try { localStorage.setItem("cirkit_tab", name); } catch (err) {}
+  if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+  window.dispatchEvent(new Event("resize")); // charts in a newly shown tab size themselves
+  if (name === "rescue") refreshRescue();
+  if (name === "impact") refreshImpact();
+}
+document.querySelectorAll("[role=tab][data-tab]").forEach(t => t.onclick = () => showTab(t.dataset.tab));
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); showTab(g.dataset.go); scrollTo({ top: 0, behavior: "smooth" }); } });
+$("sideNav").addEventListener("keydown", e => {
+  if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].includes(e.key)) return;
+  const tabs = [...document.querySelectorAll("[role=tab][data-tab]")];
+  const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+  e.preventDefault();
+  const fwd = e.key === "ArrowRight" || e.key === "ArrowDown";
+  const n = tabs[(i + (fwd ? 1 : tabs.length - 1)) % tabs.length]; n.focus(); showTab(n.dataset.tab);
+});
+
+/* ---------------- shared load ---------------- */
 async function load() {
   $("apiInput").value = API;
   try {
-    const s = await api("/api/state");
-    $("dot").className = "dot on"; $("statusText").textContent = "Agents online";
+    const [s, e, r, g] = await Promise.all([api("/api/state"), api("/api/expiry/state").catch(() => null), api("/api/rescue/state").catch(() => null),
+      api("/api/impact/state").catch(() => null)]);
+    S1 = s; S2 = e; S3 = r; S4 = g;
+    const h = await api("/").catch(() => ({}));
+    const old = !(h.pillars || []).includes(3);
+    $("dot").className = old ? "dot warn" : "dot on";
+    $("statusText").textContent = old ? "Old backend build · restart uvicorn" : "Agents online";
+    if (old) p3Flash(`⚠️ <b>The backend at ${esc(API)} is an older build without Pillar 3.</b> Stop it and run <code>uvicorn main:app --reload</code> inside cirkit/backend, then press Connect.`, "bad");
     renderStats(s); renderQueue(s); renderChart(s.window);
     if (s.plan) renderPlan(s.plan);
     $("runBtn").textContent = `1 · Run planning agents for ${fmt(s.next_date)}`;
     $("runBtn").disabled = !s.has_future;
     $("approveBtn").disabled = !s.plan || s.approved;
     $("closeBtn").disabled = !s.plan;
+    if (e) renderExpiry(e);
+    if (r) renderRescue(true);
+    if (g) renderImpact();
+    renderDashboard();
     return s;
   } catch (e) {
     $("dot").className = "dot off";
@@ -178,12 +1029,67 @@ async function load() {
   }
 }
 
+/* ---------------- dashboard ---------------- */
+function accuracy(h) {
+  return h.length ? (100 - h.reduce((a, x) => a + Math.abs(x.actual - x.forecast) / x.actual * 100, 0) / h.length).toFixed(1) + "%" : "—";
+}
+
+function tile(v, l, e, cls = "", pill = "") {
+  return `<div class="stat ${cls}">${pill ? `<div class="pill">${pill}</div>` : ""}<span class="se" aria-hidden="true">${e}</span><div class="v">${v}</div><div class="l">${l}</div></div>`;
+}
+
+function renderDashboard() {
+  if (!S1) return;
+  const i = S1.impact, e = S2, r = S3;
+  const tiles = [[i.days, "Days planned", "P1", "", "📅"], [i.portions_saved, "Portions not wasted", "P1", "", "🍛"],
+    [rs(i.money_saved), "Cooking waste saved", "P1", "", "💰"], [accuracy(S1.history), "Forecast accuracy", "P1", "", "🎯"]];
+  if (e) tiles.push([rs(e.value_at_risk), "Value at risk now", "P2", e.value_at_risk > 0 ? "warn" : "p2", "💸"],
+    [e.count.expired + e.count.critical, "Expired or critical", "P2", e.count.expired + e.count.critical ? "warn" : "p2", "🚨"],
+    [e.count.at_risk, "Batches at risk", "P2", "p2", "⚠️"], [e.batches.length, "Batches tracked", "P2", "p2", "🏷️"]);
+  if (r) tiles.push([r.totals.meals_donated, "Meals donated", "P3", "", "🤝"],
+    [r.totals.kept_from_landfill_kg + " kg", "Kept out of landfill", "P3", "p2", "🌍"]);
+  if (S4) tiles.push([S4.scores.points.toLocaleString("en-IN"), `Green Credit Points · ${S4.scores.tier.name}`, "P4", "", "🪙"],
+    [S4.scores.co2_kg + " kg", "CO₂e avoided (mock)", "P4", "p2", "💚"]);
+  $("dashStats").innerHTML = tiles.map(([v, l, p, c, em]) => tile(v, l, em, c, "Pillar " + p.slice(1))).join("");
+
+  const p1 = S1.plan, p2 = e && e.plan;
+  const needs = e ? e.batches.filter(b => b.at_risk_qty > 0 || b.status === "expired").length : 0;
+  const steps = [
+    ["Pillar 1", `Plan cooking for ${fmt(S1.next_date)}`, !!p1, "planner"],
+    ["Pillar 1", "Approve the purchase order", !!(p1 && S1.approved), "planner"],
+    ["Pillar 2", needs ? `Scan batches: ${needs} need attention` : "Scan batches for expiry risk", !!p2, "expiry"],
+    ["Pillar 3", "Share or recycle today's cooked leftovers", !!(r && r.totals.posts), "rescue"],
+    ["Pillar 4", "Run impact agents and approve green upgrades", !!(S4 && S4.run && S4.run.status === "approved"), "impact"],
+    ["Pillar 1", "Close the day and roll the memory", false, "planner"]];
+  const firstOpen = steps.findIndex(s => !s[2]);
+  $("todo").innerHTML = steps.map(([p, t, done, go], k) => `<li class="${done ? "done" : k === firstOpen ? "now" : ""}">
+      <span class="ck" aria-hidden="true">${done ? "✓" : k + 1}</span>
+      <span class="tx"><span class="pp">${p}</span>${t}</span>
+      ${done ? '<span class="sr">done</span>' : `<button class="ghost small" data-go="${go}">Go</button>`}</li>`).join("");
+
+  if (e) {
+    const next = e.batches.filter(b => b.status !== "fresh" || b.at_risk_qty > 0).slice(0, 5);
+    $("dashExpiry").innerHTML = next.length ? next.map(b => `<div class="mrow">${ring(b, 44)}
+        <span class="nm">${esc(b.id)}<small>${b.qty} ${b.unit} · ${statusLabel(b.status)}${b.at_risk_qty > 0 ? ` · ${rs(b.value_at_risk)} at risk` : ""}</small></span>
+        ${b.fefo_rank === 1 ? '<span class="b fefo">Pick 1st</span>' : ""}</div>`).join("")
+      : '<p class="empty">🎉 Nothing is close to expiry.</p>';
+  }
+  if (dashChart) dashChart.destroy();
+  const w = S1.window;
+  dashChart = new Chart($("dashChart"), {
+    data: { labels: w.map(r => fmt(r.date)), datasets: [
+      { type: "bar", label: "Customers", data: w.map(r => r.footfall), backgroundColor: w.map(r => LABEL_COLOR[r.label]), borderRadius: 8 },
+      { type: "line", label: "Portions left over", data: w.map(r => r.leftover), borderColor: "#B84A62", backgroundColor: "#B84A62", tension: .35 }] },
+    options: { plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+/* ---------------- pillar 1 (unchanged behaviour) ---------------- */
 function renderStats(s) {
   const h = s.history, i = s.impact;
-  const acc = h.length ? (100 - h.reduce((a, x) => a + Math.abs(x.actual - x.forecast) / x.actual * 100, 0) / h.length).toFixed(1) + "%" : "—";
-  $("stats").innerHTML = [[i.days, "Days planned"], [i.portions_saved, "Portions not wasted"],
-    [i.stockouts_avoided, "Sold-outs avoided"], [rs(i.money_saved), "Waste cost saved"], [acc, "Forecast accuracy"]]
-    .map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  $("stats").innerHTML = [[i.days, "Days planned", "📅"], [i.portions_saved, "Portions not wasted", "🍛"],
+    [i.stockouts_avoided, "Sold-outs avoided", "🙌"], [rs(i.money_saved), "Waste cost saved", "💰"], [accuracy(h), "Forecast accuracy", "🎯"]]
+    .map(([v, l, e]) => tile(v, l, e)).join("");
 }
 
 function renderQueue(s) {
@@ -211,6 +1117,13 @@ function renderChart(w) {
   });
 }
 
+function addStep(list, ev) {
+  const li = document.createElement("li");
+  if (["🔁", "🛑", "🚫", "⚠️"].includes(ev.icon)) li.className = "bad";
+  li.innerHTML = `<span class="ic" aria-hidden="true">${ev.icon}</span><span><span class="ag">${esc(ev.agent)} agent</span>${esc(ev.msg)}</span>`;
+  list.appendChild(li);
+}
+
 $("runBtn").onclick = () => {
   $("runBtn").disabled = true; $("approveBtn").disabled = true; $("closeBtn").disabled = true;
   $("trace").innerHTML = ""; $("outcomeCard").hidden = true;
@@ -218,12 +1131,9 @@ $("runBtn").onclick = () => {
   const es = new EventSource(API + "/api/plan/stream" + ($("stress").checked ? "?stress=true" : ""));
   es.onmessage = m => {
     const ev = JSON.parse(m.data);
-    if (ev.type === "step") {
-      const li = document.createElement("li");
-      li.innerHTML = `<span class="ic" aria-hidden="true">${ev.icon}</span><span><span class="ag">${ev.agent} agent</span>${ev.msg}</span>`;
-      $("trace").appendChild(li);
-    } else if (ev.type === "result") renderPlan(ev.plan);
-    else if (ev.type === "error") $("planCard").innerHTML = `<h2>Today's plan</h2><p class="err">${ev.msg}</p>`;
+    if (ev.type === "step") addStep($("trace"), ev);
+    else if (ev.type === "result") renderPlan(ev.plan);
+    else if (ev.type === "error") $("planCard").innerHTML = `<h2>Today's plan</h2><p class="err">${esc(ev.msg)}</p>`;
     else if (ev.type === "done") { es.close(); load(); }
   };
   es.onerror = () => { es.close(); $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="err">Lost connection to the agents.</p>'; load(); };
@@ -241,7 +1151,7 @@ function renderPlan(p) {
       <td><b>${l.order ? l.order + " " + l.unit : "—"}</b></td><td>${l.cost ? rs(l.cost) : "—"}</td></tr>`).join("");
   $("planCard").innerHTML = `<h2>Plan for ${fmt(p.date)} <span class="tag ${p.label}">${p.label}</span></h2>
     <div><span class="big">${p.footfall}</span> <b>customers expected</b></div>
-    <p class="qnote">Decided by ${p.context_source}: ${p.context_reason} · learning correction x${p.bias} · ${p.attempts} attempt${p.attempts > 1 ? "s (critic sent it back)" : " (critic approved)"}${p.flagged ? " · ⚠️ flagged for the manager" : ""}</p>
+    <p class="qnote">Decided by ${esc(p.context_source)}: ${esc(p.context_reason)} · learning correction x${p.bias} · ${p.attempts} attempt${p.attempts > 1 ? "s (critic sent it back)" : " (critic approved)"}${p.flagged ? " · ⚠️ flagged for the manager" : ""}</p>
     <div class="dishes">${dishes}</div>
     <h2>Raw ingredients</h2>
     <div class="table-wrap"><table><thead><tr><th>Item</th><th>Need today</th><th>In stock</th><th>Status</th><th>Order</th><th>Cost</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -252,10 +1162,12 @@ $("approveBtn").onclick = async () => {
   $("approveBtn").disabled = true;
   try {
     const r = await api("/api/order/approve", { method: "POST" });
-    $("vendorMsgs").innerHTML = r.messages.length
+    $("vendorMsgs").innerHTML = (r.messages.length
       ? "<h2>Messages sent to vendors</h2>" + r.messages.map(m => `<div class="msg"><b>${m.vendor}</b><br>${m.message}</div>`).join("")
-      : '<p class="empty">Nothing to buy today. Stock covers everything.</p>';
-  } catch (e) { $("vendorMsgs").innerHTML = `<p class="err">${e.message}</p>`; $("approveBtn").disabled = false; }
+      : '<p class="empty">Nothing to buy today. Stock covers everything.</p>')
+      + '<p class="qnote">🏷️ Every delivery is now a tagged batch in <a href="#expiry" data-go="expiry">Pillar 2</a>.</p>';
+    load();
+  } catch (e) { $("vendorMsgs").innerHTML = `<p class="err">${esc(e.message)}</p>`; $("approveBtn").disabled = false; }
 };
 
 $("closeBtn").onclick = async () => {
@@ -274,7 +1186,8 @@ $("closeBtn").onclick = async () => {
       </div>
       <div class="table-wrap"><table><thead><tr><th>Dish</th><th>Cooked</th><th>Sold</th><th>Left over</th><th>Status</th></tr></thead><tbody>${dishRows}</tbody></table></div>
       <p class="qnote">🗂️ Queue rolled: ${r.queue.dropped ? fmt(r.queue.dropped) + " dropped out, " : ""}${fmt(r.queue.added)} added. Window is now ${fmt(r.queue.window[0])}–${fmt(r.queue.window[1])}.</p>
-      <p class="qnote">🤝 ${r.surplus_for_redistribution} surplus portions handed to Pillar 3 (redistribution to NGOs).</p>`;
+      <p class="qnote">🤝 ${r.surplus_for_redistribution} surplus portions can be shared through <a href="#rescue" data-go="rescue">Pillar 3</a> (redistribution to NGOs).</p>
+      <p class="qnote">⏳ Kitchen clock moved to the next morning. Batches were used first-expired-first-out.</p>`;
     $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="empty">Day closed. Run the agents for the next day.</p>';
     $("trace").innerHTML = '<li class="empty" style="animation:none">New data added to memory. Ready to plan the next day.</li>';
     await load();
@@ -282,15 +1195,842 @@ $("closeBtn").onclick = async () => {
   } catch (e) { alert(e.message); load(); }
 };
 
+/* ---------------- pillar 2 ---------------- */
+const STATUS_COLOR = { fresh: "#4F7A4A", at_risk: "#E9A23B", critical: "#B84A62", expired: "#86644F" };
+const statusLabel = s => ({ fresh: "🟢 Fresh", at_risk: "🟡 At risk", critical: "🔴 Critical", expired: "⚫ Expired" }[s]);
+const ACTION = {
+  use_first: ["🥇", "Use first"], chef_special: ["⭐", "Chef's special"], staff_meal: ["🧑‍🍳", "Staff meal"],
+  donate: ["🤝", "Donate (Pillar 3)"], discard: ["🚫", "Discard to compost"] };
+
+function left(h) {
+  if (h <= 0) { const a = -h; return a >= 24 ? `${Math.floor(a / 24)}d ago` : `${Math.round(a)}h ago`; }
+  if (h >= 48) return `${Math.floor(h / 24)}d ${Math.round(h % 24)}h`;
+  return h >= 1 ? `${Math.floor(h)}h ${Math.round((h % 1) * 60)}m` : `${Math.round(h * 60)}m`;
+}
+
+function ring(b, size = 58) {
+  const r = size / 2 - 5, c = 2 * Math.PI * r, pct = Math.max(0, b.life_pct) / 100;
+  return `<div class="ring" style="width:${size}px;height:${size}px" role="img" aria-label="${b.life_pct}% of shelf life left">
+    <svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#F4EAE1" stroke-width="6"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${STATUS_COLOR[b.status]}" stroke-width="6" stroke-linecap="round"
+      stroke-dasharray="${c * pct} ${c}"/></svg>
+    <div class="in">${b.status === "expired" ? "⚫" : left(b.hours_left).replace(" ", "<br>")}</div></div>`;
+}
+
+function renderExpiry(e) {
+  const t = new Date(e.now);
+  $("clockTime").textContent = t.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  $("clockDate").textContent = t.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" }) + ` · +${e.clock_h} h into the kitchen day`;
+  document.querySelectorAll("[data-hours]").forEach(b => b.disabled = e.clock_h + +b.dataset.hours > e.max_clock_h);
+  const c = e.count;
+  $("p2Stats").innerHTML = [
+    [rs(e.value_at_risk), "Value at risk", e.value_at_risk ? "warn" : "", "💸"], [e.batches.length, "Batches tracked", "p2", "🏷️"],
+    [c.expired, "Expired", c.expired ? "warn" : "p2", "⚫"], [c.critical, "Critical (≤ 12 h)", c.critical ? "warn" : "p2", "🔴"],
+    [c.at_risk, "At risk (≤ 48 h)", "p2", "🟡"], [c.fresh, "Fresh", "", "🟢"]]
+    .map(([v, l, k, em]) => tile(v, l, em, k)).join("");
+  const alerts = c.expired + c.critical;
+  $("tabAlert").hidden = !alerts; $("tabAlert").textContent = alerts;
+  if (e.plan) renderJobs(e.plan);
+  renderRadar(e); renderRisk(e);
+  $("p2About").textContent = "ℹ️ " + e.about;
+}
+
+function renderRadar(e) {
+  const f = { all: () => true, risk: b => b.status !== "fresh" || b.at_risk_qty > 0,
+              expired: b => b.status === "expired", fresh: b => b.status === "fresh" }[radarFilter];
+  const list = e.batches.filter(f);
+  $("radar").innerHTML = list.length ? list.map(b => `<article class="batch ${b.status}">
+      <div class="top">${ring(b)}<div><div class="id">${esc(b.id)}</div>
+        <div class="q">${b.qty} ${b.unit} · ${rs(b.value)} · ${esc(b.source)}</div></div></div>
+      <div class="badges"><span class="b ${b.status}">${statusLabel(b.status)}</span>
+        ${b.fefo_rank === 1 ? '<span class="b fefo">Pick 1st</span>' : b.fefo_rank ? `<span class="b fresh">Pick #${b.fefo_rank}</span>` : ""}
+        ${b.opened ? '<span class="b open">Opened</span>' : ""}
+        ${b.at_risk_qty > 0 && b.status !== "expired" ? `<span class="b risk">${b.at_risk_qty} ${b.unit} will expire unused</span>` : ""}</div>
+      <div class="tip">🧊 ${esc(b.storage)}</div>
+      <div class="row"><span>${b.status === "expired" ? "Expired " + left(b.hours_left) : "Expires " + new Date(b.expires_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+        ${!b.opened && b.status !== "expired" ? `<button class="ghost small" data-open="${esc(b.id)}">Mark opened</button>` : ""}</div>
+    </article>`).join("") : '<p class="empty">No batches in this view. 🎉</p>';
+}
+
+function renderRisk(e) {
+  const rows = Object.entries(e.risk_by_item).sort((a, b) => b[1] - a[1]);
+  $("riskNote").textContent = rows.length
+    ? `${rs(e.value_at_risk)} of ${rs(e.stock_value)} in stock is forecast to expire before it is used (FEFO projection).`
+    : "Nothing is forecast to expire unused. Try Mark opened on a batch or fast-forward the clock.";
+  $("riskTable").innerHTML = "<tr><th>Ingredient</th><th>Value at risk</th></tr>" + rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${rs(v)}</td></tr>`).join("");
+  if (riskChart) { riskChart.destroy(); riskChart = null; }
+  $("riskChart").hidden = !rows.length;
+  if (!rows.length) return;
+  riskChart = new Chart($("riskChart"), {
+    type: "bar",
+    data: { labels: rows.map(r => r[0]), datasets: [{ label: "Value at risk (₹)", data: rows.map(r => r[1]),
+      backgroundColor: "#B84A62", borderRadius: 4, borderSkipped: false, barThickness: 18 }] },
+    options: { indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => " " + rs(c.raw) + " at risk" } } },
+      scales: { x: { beginAtZero: true, grid: { color: "#F4E6E9" }, ticks: { callback: v => "₹" + v } }, y: { grid: { display: false } } } }
+  });
+}
+
+function renderJobs(p) {
+  const order = { discard: 0, donate: 1, chef_special: 2, staff_meal: 3, use_first: 4 };
+  const jobs = [...p.jobs].sort((a, b) => order[a.action] - order[b.action]);
+  const saved = jobs.filter(j => j.action !== "discard").reduce((a, j) => a + j.value, 0);
+  $("p2PlanCard").innerHTML = `<h2>Routing plan · ${new Date(p.clock).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</h2>
+    <p class="qnote" style="margin:0 0 10px">${p.attempts} attempt${p.attempts > 1 ? "s (safety critic sent it back)" : " (safety critic approved)"}${p.flagged ? " · ⚠️ flagged for the manager" : ""} · protects <b>${rs(saved)}</b></p>
+    <div class="jobs">${jobs.length ? jobs.map(j => `<div class="job a-${j.action}">
+      <span class="ai" aria-hidden="true">${ACTION[j.action][0]}</span>
+      <div><div class="h">${ACTION[j.action][1]} · ${esc(j.batch)}</div>
+        <div class="r">${j.recipe ? "🍳 " + esc(j.recipe) + " · " : ""}${esc(j.reason)} · <i>${esc(j.source)}</i></div></div>
+      <div class="val">${j.qty ? j.qty + " " + j.unit : "FEFO"}<small>${j.value ? rs(j.value) : ""}</small></div></div>`).join("")
+      : '<p class="empty">Nothing needs routing. FEFO has it covered. 🎉</p>'}</div>`;
+}
+
+function flash(msg, bad) { $("p2Flash").innerHTML = `<div class="flash ${bad ? "bad" : ""}">${msg}</div>`; }
+
+async function p2Action(fn) {
+  try { await fn(); } catch (e) { flash(esc(e.message), true); }
+  const e = await api("/api/expiry/state").catch(() => null);
+  if (e) { S2 = e; renderExpiry(e); renderDashboard(); }
+}
+
+$("p2Run").onclick = () => {
+  $("p2Run").disabled = true; $("p2Flash").innerHTML = "";
+  $("p2Trace").innerHTML = "";
+  $("p2PlanCard").innerHTML = '<h2>Routing plan</h2><p class="empty">Agents are scanning the batches…</p>';
+  const es = new EventSource(API + "/api/expiry/stream" + ($("p2Stress").checked ? "?stress=true" : ""));
+  es.onmessage = m => {
+    const ev = JSON.parse(m.data);
+    if (ev.type === "step") addStep($("p2Trace"), ev);
+    else if (ev.type === "result") renderJobs(ev.plan);
+    else if (ev.type === "error") $("p2PlanCard").innerHTML = `<h2>Routing plan</h2><p class="err">${esc(ev.msg)}</p>`;
+    else if (ev.type === "done") { es.close(); $("p2Run").disabled = false; p2Action(async () => {}); }
+  };
+  es.onerror = () => { es.close(); $("p2Run").disabled = false; $("p2PlanCard").innerHTML = '<h2>Routing plan</h2><p class="err">Lost connection to the agents.</p>'; };
+};
+
+document.querySelectorAll("[data-hours]").forEach(b => b.onclick = () => p2Action(async () => {
+  await api("/api/expiry/clock?hours=" + b.dataset.hours, { method: "POST" });
+  flash(`⏩ Clock moved forward ${b.dataset.hours} h. Countdowns updated; run the agents again for a fresh plan.`);
+}));
+
+$("radar").addEventListener("click", e => {
+  const b = e.target.closest("[data-open]"); if (!b) return;
+  p2Action(async () => {
+    const r = await api("/api/expiry/open?batch=" + encodeURIComponent(b.dataset.open), { method: "POST" });
+    flash("🔓 " + esc(r.msg));
+  });
+});
+
+function syncFilters() { document.querySelectorAll("#p2Filters button").forEach(x => x.setAttribute("aria-pressed", x.dataset.f === radarFilter)); }
+$("p2Filters").addEventListener("click", e => {
+  const b = e.target.closest("[data-f]"); if (!b) return;
+  radarFilter = b.dataset.f; syncFilters(); if (S2) renderRadar(S2);
+});
+
+/* ================= pillar 3: redistribution ================= */
+let MODE = "donate", checkTimer = null, streaming = false;
+let FOCUS = "", PREVIEW = null, CHAT_AS = "kitchen", chatOpen = false;
+const hm = iso => iso ? iso.slice(11, 16) : "";
+const tel = p => `tel:+91${p}`;
+const phoneTxt = p => `+91 ${p.slice(0, 5)} ${p.slice(5)}`;
+const short = n => n.replace(" (mock)", "");
+const DEST_EMO = { ngo: "🤝", animal_feed: "🐄", biogas: "🔥", compost: "🌱", biodiesel: "🛢️", landfill: "🗑️" };
+const KIND_EMO = { veg_scraps: "🥕", cooked_unfit: "🍲", plate_waste: "🍽️", used_oil: "🛢️" };
+const VEH = v => ({ "EV van": "⚡🚐 EV van", bike: "🛵 Bike", auto: "🛺 Auto", "EV scooter": "⚡🛵 EV scooter",
+  tractor: "🚜 Tractor", "EV truck": "⚡🚚 EV truck", van: "🚐 Van" }[v] || v);
+const STAGES = {
+  donate: [["posted", "📝", "Posted"], ["matched", "🎯", "Matched"], ["accepted", "🤝", "Accepted"], ["on_the_way", "🛵", "On the way"], ["picked_up", "📦", "Picked up"]],
+  recycle: [["posted", "📝", "Posted"], ["matched", "🎯", "Pickup requested"], ["picked_up", "♻️", "Collected"]] };
+const STATUS_TXT = { posted: "Posted", notified: "Matched · waiting", accepted: "Accepted", on_the_way: "On the way",
+  picked_up: "Picked up ✅", unmatched: "No match", cancelled: "Withdrawn" };
+const OPEN = ["posted", "notified", "accepted", "on_the_way", "unmatched"];
+
+const focusPost = () => (S3 && FOCUS && S3.posts.find(p => p.id === FOCUS)) || null;
+const latestOpen = m => { const p = S3 && S3.posts.find(p => p.mode === m && OPEN.includes(p.status)); return p ? p.id : ""; };
+
+/* --- the Donate <-> Recycle slider --- */
+function setMode(m, nudge) {
+  MODE = m;
+  const rec = m === "recycle";
+  $("modeSwitch").setAttribute("aria-checked", rec);
+  document.body.classList.toggle("mode-recycle", rec);
+  $("postTxt").textContent = rec ? "Send to Recycle" : "Share Food";
+  $("postBtn").querySelector(".e").textContent = rec ? "♻️" : "🤝";
+  $("modeRibbon").innerHTML = rec
+    ? `<span class="emo g" aria-hidden="true">♻️</span><span><b>Recycle mode</b>Spoiled or not fit for people → goshalas, dairy farms, biogas, compost or the used-oil collector. Landfill only as the last resort.</span>`
+    : `<span class="emo" aria-hidden="true">🤝</span><span><b>Donate mode</b>Good, safe cooked food → NGOs, shelters and community kitchens, free of charge.</span>`;
+  if (!rec && $("fUnit").value === "litres") $("fUnit").value = "portions";
+  if (nudge) { $("modeSwitch").classList.remove("nudge"); void $("modeSwitch").offsetWidth; $("modeSwitch").classList.add("nudge"); }
+  const fp = focusPost();
+  if (!fp || fp.mode !== m) { FOCUS = latestOpen(m); chatOpen = false; }
+  syncKind(); queueCheck(); renderNear();
+}
+$("modeSwitch").onclick = () => {
+  setMode(MODE === "donate" ? "recycle" : "donate");
+  if (currentTab !== "rescue") { showTab("rescue"); scrollTo({ top: 0, behavior: "smooth" }); }
+};
+$("modeRibbon").onclick = () => $("modeSwitch").click();
+$("modeRibbon").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("modeSwitch").click(); } };
+
+/* --- the manual post form --- */
+const radio = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value || "";
+function syncKind() { $("postForm").classList.toggle("kind-oil", MODE === "recycle" && radio("rkind") === "used_oil"); }
+function formData() {
+  return { mode: MODE, kitchen: $("fKitchen").value, institution: radio("inst"), dish: $("fDish").value, qty: $("fQty").value,
+    unit: $("fUnit").value, diet: radio("diet"), cooked_at: $("fCooked").value, storage: radio("storage"), packaging: radio("pack"),
+    recycle_kind: MODE === "recycle" ? radio("rkind") : "", spoiled: MODE === "recycle" && $("fSpoiled").checked,
+    address: $("fAddr").value, contact: $("fContact").value, phone: $("fPhone").value };
+}
+function queueCheck() { clearTimeout(checkTimer); checkTimer = setTimeout(safetyPreview, 250); }
+async function safetyPreview() {
+  const box = $("safetyBox");
+  let v;
+  try { v = await api("/api/rescue/check", { method: "POST", body: JSON.stringify(formData()) }); } catch (e) { v = { ok: false, error: e.message }; }
+  PREVIEW = v;
+  if (!FOCUS) renderNear();
+  if (!v.ok) { box.className = "safety"; box.innerHTML = `<span class="emo" aria-hidden="true">🕒</span><span><b>Safe window</b><small>${esc(v.error)}</small></span>`; return; }
+  const cls = !v.donate_ok ? "bad" : v.minutes_left < 90 ? "warn" : "ok";
+  const verdict = MODE === "recycle" ? "♻️ Going to recycle partners" : v.donate_ok ? "✅ Safe to donate" : "🚫 Not safe for people";
+  box.className = "safety " + cls;
+  box.innerHTML = `<span class="emo" aria-hidden="true">${cls === "ok" ? "🛡️" : cls === "warn" ? "⏳" : "🚫"}</span>
+    <span style="flex:1"><b>${verdict} · consume by ${hm(v.consume_by)}</b><small>${esc(v.reason)} · FSSAI-guided window ${v.window_h} h${v.portions ? ` · ${v.kg} kg ≈ ${v.portions} portions` : ""}</small></span>
+    <span class="cd" data-deadline="${Date.now() + v.minutes_left * 60000}"></span>`;
+  tick();
+}
+$("postForm").addEventListener("input", e => { if (e.target.name === "rkind") syncKind(); queueCheck(); });
+$("postForm").addEventListener("change", e => { if (e.target.name === "rkind") syncKind(); queueCheck(); });
+$("timeQuick").onclick = e => {
+  const b = e.target.closest("[data-ago]"); if (!b) return;
+  const t = new Date(Date.now() - b.dataset.ago * 60000);
+  $("fCooked").value = String(t.getHours()).padStart(2, "0") + ":" + String(t.getMinutes()).padStart(2, "0");
+  queueCheck();
+};
+
+function p3Flash(msg, kind) { $("p3Flash").innerHTML = msg ? `<div class="flash ${kind || ""}" role="status">${msg}</div>` : ""; }
+
+$("postForm").onsubmit = async e => {
+  e.preventDefault();
+  if (streaming) return;
+  p3Flash("");
+  let r;
+  try { r = await api("/api/rescue/posts", { method: "POST", body: JSON.stringify(formData()) }); }
+  catch (err) { p3Flash("😅 <b>Could not post:</b> " + esc(err.message), "bad"); return; }
+  if (r.blocked) {  // safety check agent: unsafe for people -> slider flips to Recycle
+    setMode("recycle", true);
+    const k = document.querySelector(`input[name="rkind"][value="${r.recycle_kind}"]`); if (k) k.checked = true;
+    syncKind(); queueCheck();
+    p3Flash(`🛡️ <b>Safety check:</b> ${esc(r.msg)} Press <b>Send to Recycle</b> to continue.`, "soilf");
+    return;
+  }
+  if (S3) S3.posts.unshift(r.post);  // show it in Active posts at once, before the agents finish
+  FOCUS = r.post.id; chatOpen = false;
+  renderRescue(true);
+  p3Flash(`📝 <b>${esc(r.post.id)} · ${esc(r.post.dish)}</b> posted and saved. The agents are matching it now…`);
+  runRescue(r.post.id);
+};
+
+function runRescue(id) {
+  streaming = true; $("postBtn").disabled = true;
+  $("p3Trace").innerHTML = "";
+  const es = new EventSource(API + `/api/rescue/stream?post=${encodeURIComponent(id)}` + ($("p3Stress").checked ? "&stress=true" : ""));
+  let done = false;
+  const finish = () => { if (done) return; done = true; es.close(); streaming = false; $("postBtn").disabled = false; refreshRescue(true); };
+  es.onmessage = m => {
+    const ev = JSON.parse(m.data);
+    if (ev.type === "step") addStep($("p3Trace"), ev);
+    else if (ev.type === "result") {
+      const p = ev.post;
+      traceShown = p.id + ":" + p.trace.length;
+      p3Flash(p.status === "notified"
+        ? `${p.mode === "donate" ? "🎉" : "♻️"} <b>${esc(p.dish)}</b> matched with <b>${esc(short(p.partner_info.name))}</b>. ${p.mode === "donate" ? "Use Accept / Chat in Who's nearby." : "Pickup requested. Mark it collected when it leaves."}`
+        : `⚠️ ${esc(p.dish)}: no partner could take it safely. See the agent trace.`, p.status === "notified" ? "" : "bad");
+      $("fDish").value = ""; $("fQty").value = "";
+    }
+    else if (ev.type === "error") p3Flash("😅 " + esc(ev.msg), "bad");
+    else if (ev.type === "done") finish();
+  };
+  es.onerror = () => { if (!done) p3Flash("Lost connection to the agents. The post is saved; refresh to see it.", "bad"); finish(); };
+}
+
+let traceShown = "";
+function showSavedTrace() {  // after a refresh, show the focused post's saved agent trace
+  const fp = focusPost();
+  if (streaming || !fp || !fp.trace.length) return;
+  const key = fp.id + ":" + fp.trace.length;
+  if (key === traceShown) return;
+  traceShown = key;
+  $("p3Trace").innerHTML = `<li class="empty" style="animation:none">Saved trace for ${esc(fp.id)} · ${esc(fp.dish)}</li>`;
+  fp.trace.forEach(s => addStep($("p3Trace"), s));
+}
+
+function playTrace(steps) {
+  const list = $("p3Trace");
+  if (list.querySelector(".empty")) list.innerHTML = "";
+  steps.forEach((s, k) => setTimeout(() => addStep(list, s), k * 320));
+}
+
+/* --- countdowns (1 s tick) --- */
+function fmtLeft(ms) {
+  if (ms <= 0) return "⛔ past consume-by";
+  const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return `⏱️ ${h ? h + "h " : ""}${String(m).padStart(h ? 2 : 1, "0")}m ${String(x).padStart(2, "0")}s`;
+}
+function tick() {
+  document.querySelectorAll("[data-deadline]").forEach(el => {
+    const ms = +el.dataset.deadline - Date.now();
+    el.textContent = fmtLeft(ms);
+    el.className = "cd " + (ms <= 0 ? "gone" : ms < 15 * 60000 ? "bad" : ms < 60 * 60000 ? "warn" : "");
+  });
+}
+setInterval(tick, 1000);
+
+/* --- Who's nearby (changes with the slider) --- */
+const vmark = d => `<i class="vm ${d === "veg" ? "" : "nv"}" aria-label="${d === "veg" ? "veg" : "non-veg"}"></i>`;
+const callBtn = (phone, cls = "") => `<a class="call ${cls}" href="${tel(phone)}">📞 Call</a><span class="demo">${phoneTxt(phone)} (demo number)</span>`;
+
+function ngoCard(n, f, fp, rank) {
+  const mine = fp && fp.partner === n.id, open = fp && fp.status === "notified", live = fp && ["notified", "accepted", "on_the_way"].includes(fp.status);
+  const good = f && f.in_time && f.cap_ok && f.diet_ok;
+  const badges = (f ? (f.in_time ? `<span class="tagp">✅ arrives in time · ${f.margin_min} min spare</span>` : `<span class="tagp x">⛔ too late for consume-by</span>`) : "")
+    + (f && !f.diet_ok ? '<span class="tagp x">🥗 veg only</span>' : "") + (f && !f.cap_ok ? '<span class="tagp x">👥 not enough room</span>' : "")
+    + (n.veg_only && !(f && !f.diet_ok) ? '<span class="tagp">🟢 veg only</span>' : "")
+    + (mine ? `<span class="tagp y">${{ notified: "📣 Offered", accepted: "🤝 Accepted", on_the_way: "🛵 On the way", picked_up: "📦 Picked up" }[fp.status] || ""}</span>` : "")
+    + (fp && fp.declined.includes(n.id) ? '<span class="tagp x">❌ declined</span>' : "");
+  let act = "";
+  if (live && mine) act = `<button class="small" data-act="chat">💬 Chat</button>`
+    + (open ? `<button class="small" data-act="accept" data-ngo="${n.id}">✅ Accept (as NGO)</button><button class="ghost small" data-act="decline" data-ngo="${n.id}">❌ Decline</button>` : "");
+  else if (open && good && !fp.declined.includes(n.id)) act = `<button class="ghost small" data-act="accept" data-ngo="${n.id}">✅ Accept (as NGO)</button>`;
+  return `<article class="nc ${mine ? "on" : ""} ${f && !good ? "dim" : ""}">
+    <div class="nt">${rank >= 0 ? `<span class="rk" aria-label="rank ${rank + 1}">${rank + 1}</span>` : '<span class="emo sm g" aria-hidden="true">🤝</span>'}
+      <span class="nm">${esc(n.name)}<small>${esc(n.kind)} · ${VEH(n.vehicle)}</small></span>
+      <span class="km">${n.km} km<small>~${n.eta_min} min</small></span></div>
+    <div class="nb">${badges}</div>
+    <div class="nf"><span>👥 room for ${f ? f.cap_left : n.cap_left} of ${n.capacity} people</span>${callBtn(n.phone)}</div>
+    ${act ? `<div class="na">${act}</div>` : ""}
+  </article>`;
+}
+
+function recCard(r, match, fp) {
+  const mine = fp && fp.partner === r.id;
+  let act;
+  if (!match) act = `<span class="demo">Doesn't take ${fp || PREVIEW ? "this waste" : "every kind of waste"}</span>`;
+  else if (fp && ["notified", "unmatched"].includes(fp.status)) act = mine ? '<span class="tagp y">📨 Pickup requested</span>'
+    : `<button class="soil small" data-act="request" data-partner="${r.id}">📨 Send pickup request</button>`;
+  else if (fp && fp.status === "picked_up") act = mine ? '<span class="tagp">♻️ Collected</span>' : "";
+  else act = `<span class="demo">Post the food first, then send a pickup request</span>`;
+  return `<article class="nc ${mine ? "on" : ""} ${match ? "" : "dim"}">
+    <div class="nt"><span class="emo sm b" aria-hidden="true">${r.emoji}</span>
+      <span class="nm">${esc(r.name)}<small>${esc(r.label)} · ${VEH(r.vehicle)}</small></span>
+      <span class="km">${r.km} km<small>~${r.eta_min} min</small></span></div>
+    <div class="acc">✅ ${esc(r.accepts)}</div>
+    <div class="nf"><span>📅 ${esc(r.days)}</span>${callBtn(r.phone, "s")}</div>
+    <div class="na">${act}</div>
+  </article>`;
+}
+
+function renderNear() {
+  if (!S3) return;
+  const fp = focusPost(), donate = MODE === "donate";
+  const opts = S3.posts.filter(p => p.mode === MODE && (OPEN.includes(p.status) || p.id === FOCUS));
+  $("focusSel").innerHTML = `<option value="">📝 the food in the form</option>` + opts.map(p =>
+    `<option value="${p.id}">${p.id} · ${esc(p.dish)} · ${STATUS_TXT[p.status]}</option>`).join("");
+  $("focusSel").value = fp ? fp.id : "";
+  $("nearTitle").textContent = donate ? "Who's nearby · NGOs" : "Who's nearby · recycle partners";
+  $("nearEmo").textContent = donate ? "🤝" : "♻️";
+  const pv = PREVIEW && PREVIEW.ok ? PREVIEW : null;
+  if (donate) {
+    const fit = fp ? fp.fit : pv && pv.fit;
+    $("nearNote").innerHTML = fp ? `Checked against <b>${fp.id}</b>'s consume-by time <b>${hm(fp.consume_by)}</b>. Nearest first.`
+      : fit ? `Checked against the form's consume-by time <b>${hm(pv.consume_by)}</b>. Nearest first.`
+      : "Nearest first. Enter the cooked-at time and how it's kept to see who can arrive in time.";
+    const ranked = fp && fp.plan && fp.plan.kind === "donate" ? fp.plan.ranked : [];
+    $("nearList").innerHTML = [...S3.ngos].sort((a, b) => a.km - b.km).map(n => ngoCard(n, fit && fit[n.id], fp, ranked.indexOf(n.id))).join("");
+  } else {
+    const match = fp ? fp.matching : pv ? pv.matching : S3.recyclers.map(r => r.id);
+    $("nearNote").innerHTML = (fp ? `Partners for <b>${fp.id}</b> (${esc(S3.recycle_kinds[fp.recycle_kind])}) first` : "Partners that take the waste in the form first") + ", then by distance.";
+    const list = [...S3.recyclers].sort((a, b) => (match.includes(b.id) - match.includes(a.id)) || a.km - b.km);
+    $("nearList").innerHTML = list.map(r => recCard(r, match.includes(r.id), fp)).join("");
+  }
+  if (!busy($("chatBoard"))) {
+    const show = donate && chatOpen && fp && fp.partner_info && fp.partner_info.type === "ngo";
+    $("chatBoard").innerHTML = show ? chatBoard(fp) : "";
+    const m = $("chatBoard").querySelector(".msgs"); if (m) m.scrollTop = m.scrollHeight;
+  }
+}
+$("focusSel").onchange = e => { FOCUS = e.target.value; chatOpen = false; renderNear(); };
+
+/* --- simple chat board (donate only), both sides can be demoed --- */
+function chatBoard(p) {
+  const ngo = p.partner_info;
+  const msgs = p.chat.length ? p.chat.map(m => {
+    const who = m.from === "bot" ? "🤖 CirKit bot" : m.from === "kitchen" ? "🍳 Kitchen" : "🤝 " + esc(short(ngo.name));
+    return `<div class="bub ${m.from === "bot" ? "bot" : m.from === CHAT_AS ? "me" : "them"}"><small>${who} · ${hm(m.at)}</small>${esc(m.text)}</div>`;
+  }).join("") : '<p class="empty" style="margin:4px;font-size:.85rem">No messages yet. Tap a quick reply 👇</p>';
+  const live = !["picked_up", "cancelled", "unmatched"].includes(p.status);
+  return `<div class="board">
+    <div class="bhead"><b>💬 ${p.id} · ${esc(p.dish)}</b>
+      <span class="seg2" role="group" aria-label="Chatting as">Chatting as
+        <button type="button" data-as="kitchen" aria-pressed="${CHAT_AS === "kitchen"}">🍳 Kitchen</button>
+        <button type="button" data-as="ngo" aria-pressed="${CHAT_AS === "ngo"}">🤝 NGO</button></span>
+      <button type="button" class="xbtn" data-act="closechat" aria-label="Close chat">✕</button></div>
+    <div class="calls"><a class="call s" href="${tel(p.phone)}">📞 Kitchen · ${esc(p.contact)}</a><a class="call" href="${tel(ngo.phone)}">📞 ${esc(short(ngo.name))}</a><span class="demo">demo numbers</span></div>
+    <div class="msgs">${msgs}</div>
+    ${live ? `<div class="qr-row">${S3.quick[CHAT_AS].map(q => `<button type="button" data-say="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+    <form class="say"><input maxlength="200" placeholder="Or type a short message…" aria-label="Message"><button class="small" type="submit">Send</button></form>`
+    : '<p class="qnote">This chat is closed.</p>'}
+  </div>`;
+}
+
+/* --- active posts --- */
+const qtyTxt = p => p.mode === "donate" ? `${p.portions} portions · ${p.kg} kg` : `${p.kg} kg${p.unit === "litres" ? ` (${p.qty} L)` : ""}`;
+const foodEmo = p => p.mode === "recycle" ? KIND_EMO[p.recycle_kind] || "♻️" : p.diet === "veg" ? "🍛" : "🍗";
+
+function stepper(p) {
+  const history = p.timeline, last = history.map(t => t.stage).lastIndexOf("declined");
+  const got = new Set(history.slice(last < 0 ? 0 : last).map(t => t.stage));
+  got.add("posted");
+  if (last >= 0 && got.has("reassigned")) got.add("matched");
+  const stages = STAGES[p.mode], stop = ["unmatched", "cancelled"].includes(p.status);
+  const now = stop ? -1 : stages.findIndex(([k]) => !got.has(k));
+  const events = history.filter(t => ["declined", "reassigned", "unmatched", "cancelled"].includes(t.stage)).map(t =>
+    `<span class="evt ${t.stage === "reassigned" ? "re" : ""}">${{ declined: "❌", reassigned: "🔄 reassigned to", unmatched: "⚠️", cancelled: "🚫" }[t.stage]} ${esc(t.note)} · ${hm(t.at)}</span>`).join("");
+  return `<div class="steps" aria-label="Status timeline">${stages.map(([k, e, l], i) =>
+    `<div class="stp ${got.has(k) ? "done" : i === now ? "now" : ""}"><i aria-hidden="true">${e}</i>${l}</div>`).join("")}</div>
+    ${events ? `<div class="evts">${events}</div>` : ""}`;
+}
+
+function kitchenPost(p) {
+  const live = ["notified", "accepted", "on_the_way"].includes(p.status), n = p.partner_info;
+  let act = `<button class="white small" data-act="focus" data-post="${p.id}">📍 Show in Who's nearby</button>`;
+  if (p.mode === "donate" && p.status === "notified")
+    act += `<button class="ghost small" data-act="simdecline" data-post="${p.id}">🙅 Simulate NGO declines</button>
+      <span class="demo">auto follow-up after ${S3.rules.follow_up_minutes} min without a reply</span>`;
+  else if (p.mode === "donate" && live) act += `<span class="demo">Waiting for the NGO's "Food collected ✅" in the chat</span>`;
+  else if (p.mode === "recycle" && p.status === "notified") act += `<button class="soil small" data-act="collect" data-post="${p.id}">📦 Mark collected</button>`;
+  else if (p.status === "picked_up") act += `<span class="tagp">✅ Verified · ${esc((S3.records.find(r => r.post === p.id) || {}).verified_by || "")}</span>`;
+  else if (p.status === "unmatched") act += `<span class="demo">💡 Try a smaller quantity, or switch to Recycle.</span>`;
+  return `<article class="post m-${p.mode} s-${p.status} ${p.id === FOCUS ? "focused" : ""}">
+    <div class="phead"><span class="emo ${p.mode === "donate" ? "g" : "b"}" aria-hidden="true">${foodEmo(p)}</span>
+      <span class="nm">${esc(p.id)} · ${esc(p.dish)}<small>${p.mode === "donate" ? vmark(p.diet) : "♻️ " + esc(S3.recycle_kinds[p.recycle_kind])} · ${qtyTxt(p)} · cooked ${hm(p.cooked_at)} · ${esc(p.kitchen)}</small></span>
+      ${live && p.mode === "donate" ? `<span class="cd" data-deadline="${Date.now() + p.secs_left * 1000}"></span>` : `<span class="tagp ${["unmatched", "cancelled"].includes(p.status) ? "x" : ""}">${STATUS_TXT[p.status]}</span>`}</div>
+    ${stepper(p)}
+    ${n ? `<div class="who"><span class="emo sm ${n.type === "ngo" ? "g" : "b"}">${DEST_EMO[n.type]}</span>
+      <span class="nm">${esc(n.name)}<small>${p.route.km} km · ${VEH(n.vehicle)} · pickup by ${hm(p.route.pickup_at)}${p.mode === "donate" ? ` · arrives ${hm(p.route.arrive_at)}` : ""}</small></span>
+      <a class="call" href="${tel(n.phone)}">📞 Call</a></div>` : ""}
+    ${p.message && live ? `<div class="quote"><small>📣 Outreach message sent</small>${esc(p.message)}</div>` : ""}
+    ${p.flagged ? `<p class="qnote" style="margin:6px 0 0">⚠️ Flagged by the critic (${p.attempts} attempt${p.attempts > 1 ? "s" : ""}).</p>` : ""}
+    <div class="pact">${act}</div>
+  </article>`;
+}
+
+function renderTotals() {
+  const t = S3.totals, r = t.recycled_kg;
+  $("p3Totals").innerHTML = [
+    [t.meals_donated, "Meals donated (verified)", "🍛", ""], [r.animal_feed + " kg", "Animal feed", "🐄", "b"], [r.biogas + " kg", "Biogas", "🔥", "b"],
+    [r.compost + " kg", "Compost", "🌱", "b"], [r.biodiesel + " kg", "Oil → biodiesel", "🛢️", "b"], [t.kept_from_landfill_kg + " kg", "Kept out of landfill", "🌍", ""]]
+    .map(([v, l, e, c]) => tile(v, l, e, c)).join("");
+  $("p3Alert").hidden = !t.active; $("p3Alert").textContent = t.active;
+}
+
+function renderRecords() {
+  const rec = S3.records;
+  if (!rec.length) { $("p3Records").innerHTML = '<p class="empty">Records appear once food is picked up.</p>'; return; }
+  $("p3Records").innerHTML = `<table><thead><tr><th>Post</th><th>Type</th><th>Dish</th><th>kg</th><th>Portions</th><th>Destination</th><th>Partner</th><th>km</th><th>Vehicle</th><th>Posted</th><th>Picked up</th><th>Verified by</th></tr></thead>
+    <tbody>${[...rec].reverse().map(r => `<tr><td>${esc(r.post)}</td><td>${r.mode === "donate" ? "🤝 Donate" : "♻️ Recycle"}</td><td>${esc(r.dish)}</td><td>${r.kg}</td><td>${r.portions || "—"}</td>
+      <td>${DEST_EMO[r.destination]} ${esc(S3.destinations[r.destination].label)}</td><td>${esc(short(r.partner))}</td><td>${r.distance_km}</td><td>${VEH(r.vehicle)}</td>
+      <td>${hm(r.posted_at)}</td><td>${hm(r.picked_up_at)}</td><td>${r.verified ? "✅ " + esc(r.verified_by) : "—"}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function busy(el) { const a = document.activeElement; return a && el.contains(a) && a.tagName === "INPUT"; }
+
+function renderRescue(force) {
+  if (!S3) return;
+  if (FOCUS && !focusPost()) FOCUS = "";
+  if (!FOCUS) FOCUS = latestOpen(MODE);
+  renderTotals();
+  if (force || !busy($("p3Posts"))) {
+    const posts = S3.posts.slice(0, 10);
+    $("p3Posts").innerHTML = posts.length ? posts.map(kitchenPost).join("") : '<p class="empty">No food posted yet today. Use the form above. 🍛</p>';
+  }
+  renderRecords(); renderNear(); showSavedTrace(); tick();
+}
+
+async function refreshRescue(force) {
+  try { S3 = await api("/api/rescue/state"); } catch (e) { if (force) p3Flash("😅 " + esc(e.message), "bad"); return; }
+  renderRescue(force);
+  if (force) renderDashboard();
+}
+setInterval(() => { if (currentTab === "rescue" && !streaming && !document.hidden) refreshRescue(); }, 5000);
+
+/* --- one click handler for every Pillar 3 action --- */
+document.addEventListener("click", async e => {
+  const as = e.target.closest("[data-as]");
+  if (as) { CHAT_AS = as.dataset.as; return renderNear(); }
+  const sayBtn = e.target.closest("[data-say]");
+  if (sayBtn) return sendChat(FOCUS, CHAT_AS, sayBtn.dataset.say);
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.post || FOCUS;
+  if (act === "focus") {
+    const p = S3.posts.find(x => x.id === id);
+    FOCUS = id; chatOpen = false;
+    if (p.mode !== MODE) setMode(p.mode); else renderNear();
+    renderRescue(true);
+    $("nearCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (act === "chat") { chatOpen = true; return renderNear(); }
+  if (act === "closechat") { chatOpen = false; return renderNear(); }
+  b.disabled = true;
+  try {
+    if (act === "simdecline" || act === "decline") {
+      const r = await api(`/api/rescue/decline?post=${id}` + (act === "decline" ? `&ngo=${b.dataset.ngo}` : "&demo=true"), { method: "POST" });
+      traceShown = r.post.id + ":" + r.post.trace.length;
+      playTrace(r.trace);
+      const p = r.post;
+      p3Flash(p.status === "notified" ? `🔄 Follow-up agent offered <b>${esc(p.dish)}</b> to <b>${esc(short(p.partner_info.name))}</b> instead.`
+        : `⚠️ No other partner could take ${esc(p.dish)} safely.`, p.status === "notified" ? "" : "bad");
+    } else if (act === "accept") {
+      const r = await api(`/api/rescue/accept?post=${id}&ngo=${b.dataset.ngo}`, { method: "POST" });
+      chatOpen = true; CHAT_AS = "ngo";
+      p3Flash(`🤝 <b>${esc(short(r.post.partner_info.name))}</b> accepted ${esc(r.post.dish)}. Chat opened as the NGO: send "On the way", then "Food collected ✅".`);
+    } else if (act === "request") {
+      const r = await api(`/api/rescue/request?post=${id}&partner=${b.dataset.partner}`, { method: "POST" });
+      p3Flash(`📨 Pickup request sent to <b>${esc(short(r.post.partner_info.name))}</b>. `);
+    } else if (act === "collect") {
+      await api(`/api/rescue/collected?post=${id}`, { method: "POST" });
+      p3Flash("♻️ Collected by the recycle partner. Recorded for Pillar 4.");
+    }
+  } catch (err) { p3Flash("😅 " + esc(err.message), "bad"); }
+  await refreshRescue(true);
+});
+
+document.addEventListener("submit", e => {
+  const f = e.target.closest("form.say"); if (!f) return;
+  e.preventDefault();
+  const inp = f.querySelector("input");
+  if (inp.value.trim()) { sendChat(FOCUS, CHAT_AS, inp.value); inp.value = ""; inp.blur(); }
+});
+
+async function sendChat(post, as, text) {
+  try {
+    const r = await api(`/api/rescue/chat?post=${post}&sender=${as}&text=${encodeURIComponent(text)}`, { method: "POST" });
+    if (r.post.status === "picked_up" && text.startsWith("Food collected")) p3Flash("📦 <b>Picked up and verified</b> by the NGO's \"Food collected ✅\". Counted for Pillar 4.");
+  } catch (err) { p3Flash("😅 " + esc(err.message), "bad"); }
+  await refreshRescue(true);
+}
+
+/* ================= pillar 4: revenue & impact ================= */
+let MK_MORE = false, S4 = null, CART = [], MK_CAT = "all", MK_SORT = "payback", p4Streaming = false, revChart = null, govChart = null, govDest = null;
+const MEDAL = { Gold: "🥇", Silver: "🥈", Bronze: "🥉" };
+const tierPill = n => `<span class="tierpill t-${n}">${MEDAL[n]} ${n}</span>`;
+const kg = n => (+n).toLocaleString("en-IN", { maximumFractionDigits: 1 }) + " kg";
+const noMock = s => String(s).replace(" (mock)", "");
+const STREAM_COL = ["#43704A", "#F2A93B", "#BC4B67", "#7FB2E5", "#8A6A56"];
+const ORDER_STEPS = [["placed", "🧾 Placed"], ["vendor_confirmed", "🤝 Vendor confirmed"], ["dispatched", "🚚 Dispatched"], ["delivered", "📦 Delivered"]];
+function p4Flash(el, msg, kind) { $(el).innerHTML = msg ? `<div class="flash ${kind || ""}" role="status">${msg}</div>` : ""; }
+
+async function refreshImpact() {
+  try { S4 = await api("/api/impact/state"); } catch (e) { return; }
+  renderImpact();
+}
+
+function renderImpact() {
+  if (!S4) return;
+  const sc = S4.scores, t = sc.tier;
+  $("p4Medal").innerHTML = `<div class="medal t-${t.name}" aria-hidden="true">${MEDAL[t.name]}</div>
+    <div class="medal-info"><b>${tierPill(t.name)} &nbsp;${sc.points.toLocaleString("en-IN")} Green Credit Points</b>
+      <small>${t.next ? `${t.to_next} points to ${t.next} · ${sc.earned.toLocaleString("en-IN")} earned in total` : "Top tier reached 🎉"}</small>
+      <div class="bar" role="img" aria-label="${t.progress}% of the way to ${t.next || "the top"}"><i style="width:${t.progress}%"></i></div></div>`;
+  $("p4Tiles").innerHTML = [
+    [sc.points.toLocaleString("en-IN"), "Green Credit Points (balance)", "🪙", "y"], [kg(sc.co2_kg), "CO₂e avoided (mock est.)", "🌍", ""],
+    [sc.meals, "Verified meals donated", "🍛", "p"], [kg(sc.kept_kg), "Kept out of landfill", "♻️", ""],
+    [rs(S4.monthly_saving_rs) + "/mo", "Savings from upgrades", "💰", "y"], [rs(sc.ev_saving_rs), "EV fuel savings", "⚡", "i"]]
+    .map(([v, l, e, c]) => `<div class="bt ${c}"><span class="se" aria-hidden="true">${e}</span><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  renderP4Plan(); renderProfile(); renderTargets(); renderMarket(); renderCart(); renderOrders(); renderLedger(); renderCert(); renderRevenue(); renderGov();
+}
+
+/* --- agents: run, approve --- */
+$("p4Run").onclick = () => {
+  if (p4Streaming) return;
+  p4Streaming = true; $("p4Run").disabled = true; $("p4Trace").innerHTML = "";
+  const es = new EventSource(API + "/api/impact/stream" + ($("p4Stress").checked ? "?stress=true" : ""));
+  let done = false;
+  const finish = () => { if (done) return; done = true; es.close(); p4Streaming = false; $("p4Run").disabled = false; refreshImpact(); };
+  es.onmessage = m => {
+    const ev = JSON.parse(m.data);
+    if (ev.type === "step") addStep($("p4Trace"), ev);
+    else if (ev.type === "result") { if (S4) { S4.run = ev.run; renderP4Plan(); } }
+    else if (ev.type === "error") $("p4Plan").insertAdjacentHTML("beforeend", `<p class="err">${esc(ev.msg)}</p>`);
+    else if (ev.type === "done") finish();
+  };
+  es.onerror = finish;
+};
+
+function renderP4Plan() {
+  const r = S4.run, el = $("p4Plan");
+  const head = '<h2><span class="emo sm y">🛒</span> Recommended upgrades &amp; draft order</h2>';
+  if (!r || r.status === "discarded") { el.innerHTML = head + '<p class="empty">Run the impact agents: the advisor picks the top 3 upgrades for your kitchen and the procurement agent drafts the best-value order.</p>'; return; }
+  const cards = r.lines.map(l => `<div class="rec"><b>${esc(l.name)}</b><small>${esc(noMock(l.vendor_name))} · ${rs(l.price)} · ★${l.rating} · ${l.days} days</small>
+      <div class="kv"><span>saves ${rs(l.saving)}/mo</span><span class="y">payback ${l.payback} mo</span><span class="i">−${l.co2} kg CO₂/mo</span><span class="p">+${l.points} pts</span></div>
+      <small>💡 ${esc(l.reason)}</small></div>`).join("");
+  const m = r.money;
+  const rep = r.status === "approved" && S4.report ? `<div class="report">📰 <b>ESG summary</b> <span class="demo">(${esc(S4.report.by)})</span><br>${esc(S4.report.esg_summary)}</div>` : "";
+  el.innerHTML = head + `<p class="qnote" style="margin:0 0 10px">${r.attempts} attempt${r.attempts > 1 ? "s (critic sent it back)" : " (critic approved)"}${r.flagged ? " · ⚠️ flagged" : ""}
+      · verifier accepted ${r.accepted}, rejected ${r.rejected.length}${r.rejected.length ? ` (${r.rejected.map(x => esc(x.post)).join(", ")})` : ""}${r.stress ? " · 🧪 stress test" : ""}</p>
+    ${r.lines.length ? `<div class="recs">${cards}</div>
+    <div class="money"><div><span>Subtotal</span><span>${rs(m.subtotal)}</span></div><div class="d"><span>🪙 Green Points discount (max 10%)</span><span>−${rs(m.discount)}</span></div>
+      <div><span>GST ${S4.rules.gst_pct}%</span><span>${rs(m.gst)}</span></div><div class="t"><span>Total (budget ${rs(S4.profile.budget)})</span><span>${rs(m.total)}</span></div></div>`
+      : '<p class="empty">No upgrade fits the budget and the 36-month payback rule. Raise the budget in the energy profile.</p>'}
+    ${r.status === "awaiting_approval" ? `<div class="actions" style="margin-top:12px"><button id="p4Approve" class="bigbtn"><span class="e">✅</span>${r.lines.length ? "Approve order" : "Approve report"}</button>
+      <button class="ghost" id="p4Discard">Discard</button><span class="demo">Demo order · no real payment is processed</span></div>`
+      : `<p class="qnote">✅ Approved${r.orders.length ? ` · invoices in Orders below` : ""}</p>`}
+    <div id="p4PlanFlash"></div>${rep}`;
+  if ($("p4Approve")) $("p4Approve").onclick = async () => {
+    $("p4Approve").disabled = true;
+    try {
+      const a = await api("/api/impact/approve", { method: "POST" });
+      a.trace.forEach((s, k) => setTimeout(() => addStep($("p4Trace"), s), k * 300));
+      await refreshImpact(); renderDashboard();
+    } catch (e) { p4Flash("p4PlanFlash", "😅 " + esc(e.message), "bad"); $("p4Approve").disabled = false; }
+  };
+  if ($("p4Discard")) $("p4Discard").onclick = async () => { await api("/api/impact/discard", { method: "POST" }); refreshImpact(); };
+}
+
+/* --- energy profile + targets --- */
+function renderProfile() {
+  const f = $("profileForm"), p = S4.profile;
+  if (f.contains(document.activeElement) && document.activeElement.tagName === "INPUT") return;
+  ["lpg_cylinders", "electricity_units", "fridge_age", "water_kl", "budget"].forEach(k => f.elements[k].value = p[k]);
+  f.elements.solar.checked = !!p.solar;
+  $("evShare").textContent = S4.scores.ev_share_pct + "%";
+}
+$("profileForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target, body = { solar: f.elements.solar.checked };
+  ["lpg_cylinders", "electricity_units", "fridge_age", "water_kl", "budget"].forEach(k => body[k] = f.elements[k].value === "" ? null : +f.elements[k].value);
+  try { await api("/api/impact/profile", { method: "POST", body: JSON.stringify(body) }); $("profileMsg").textContent = "✅ Saved. Run the impact agents for fresh advice."; document.activeElement.blur(); refreshImpact(); }
+  catch (err) { $("profileMsg").textContent = "😅 " + err.message; }
+};
+
+function meter(label, val, goal, cls, note) {
+  const pct = Math.min(100, val);
+  return `<div class="target"><div class="hd"><span>${label}</span><span>${val}%</span></div>
+    <div class="meter" role="img" aria-label="${label}: ${val}% against a ${goal}% goal"><i class="${cls}" style="width:${pct}%"></i><span class="goal" style="left:${goal}%" data-l="goal ${goal}%"></span></div>
+    <small>${note}</small></div>`;
+}
+function renderTargets() {
+  const sc = S4.scores;
+  $("p4Targets").innerHTML = meter("🍛 Donation share of leftovers", sc.donation_share_pct, sc.donation_target_pct, "",
+      `${sc.meals} verified meals out of ${sc.leftover_portions} leftover portions (Pillar 1 window)`)
+    + meter("🗑️ Leftovers kept out of landfill", sc.diverted_pct, sc.landfill_goal_pct, "y", `${kg(sc.kept_kg)} verified through Pillar 3`)
+    + meter("🛵 EV share of pickups", sc.ev_share_pct, 50, "b", `${sc.ev_pickups} EV pickups · ${sc.ev_km} km · ${kg(Math.round(sc.ev_km * 0.12 * 10) / 10)} CO₂ saved (mock)`);
+}
+
+/* --- GreenLoop Marketplace --- */
+function renderMarket() {
+  const cats = [["all", "✨ All"], ...Object.entries(S4.categories).map(([k, c]) => [k, `${c.emoji} ${c.label}`])];
+  $("mkCats").innerHTML = cats.map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${MK_CAT === k}">${l}</button>`).join("");
+  const key = { payback: o => o.payback, co2: o => -o.co2, price: o => o.price, rating: o => -o.rating }[MK_SORT];
+  const bestFor = {};
+  S4.catalogue.forEach(o => { const v = o.saving / o.price + o.rating / 100; if (!bestFor[o.product] || v > bestFor[o.product].v) bestFor[o.product] = { v, vendor: o.vendor }; });
+  const list = S4.catalogue.filter(o => MK_CAT === "all" || o.category === MK_CAT).sort((a, b) => key(a) - key(b));
+  const shown = MK_MORE ? list : list.slice(0, 12);
+  $("mkGrid").innerHTML = shown.map(o => `<article class="pc">
+      <div class="top"><span class="emo sm y" aria-hidden="true">${S4.categories[o.category].emoji}</span>
+        <div><div class="nm">${esc(o.name)}</div><div class="vd">${esc(o.vendor_name)} · replaces ${esc(o.replaces)}</div></div></div>
+      ${bestFor[o.product].vendor === o.vendor ? '<span class="best">⭐ Best value</span>' : ""}
+      <div class="pr">${rs(o.price)} <span class="rt">★${o.rating}</span></div>
+      <div class="kv"><span>saves ${rs(o.saving)}/month</span><span class="y">payback ${o.payback} months</span>
+        <span class="i">cuts ${o.co2} kg CO₂/month</span><span class="p">+${o.points} Green Points</span><span>🚚 ${o.days} days</span></div>
+      <button class="small" data-add="${o.product}|${o.vendor}">🛒 Add to cart</button></article>`).join("")
+    + (list.length > shown.length ? `<button type="button" class="white" data-more style="grid-column:1/-1">Show all ${list.length} offers ▾</button>` : "");
+}
+$("mkCats").onclick = e => { const b = e.target.closest("[data-cat]"); if (!b) return; MK_CAT = b.dataset.cat; MK_MORE = false; renderMarket(); };
+$("mkSort").onchange = e => { MK_SORT = e.target.value; renderMarket(); };
+$("mkGrid").onclick = e => {
+  if (e.target.closest("[data-more]")) { MK_MORE = true; return renderMarket(); }
+  const b = e.target.closest("[data-add]"); if (!b) return;
+  const [product, vendor] = b.dataset.add.split("|");
+  const line = CART.find(l => l.product === product && l.vendor === vendor);
+  line ? line.qty++ : CART.push({ product, vendor, qty: 1 });
+  b.textContent = "✅ Added"; setTimeout(() => { b.textContent = "🛒 Add to cart"; }, 900);
+  renderCart();
+};
+
+function renderCart() {
+  const find = l => S4.catalogue.find(o => o.product === l.product && o.vendor === l.vendor);
+  const lines = CART.map(l => ({ ...l, o: find(l) })).filter(l => l.o);
+  const sub = lines.reduce((a, l) => a + l.o.price * l.qty, 0);
+  const usePts = !$("cart").querySelector("#usePts") || $("cart").querySelector("#usePts").checked;
+  const disc = usePts ? Math.min(Math.max(0, S4.scores.points), Math.floor(sub * S4.rules.max_points_discount_pct / 100)) : 0;
+  const gst = Math.round((sub - disc) * S4.rules.gst_pct / 100);
+  $("cart").innerHTML = `<h3>🛒 Cart <span class="demo">${lines.length} item${lines.length === 1 ? "" : "s"}</span></h3>
+    ${lines.length ? lines.map((l, i) => `<div class="cl"><span class="nm">${esc(l.o.name)}<small>${esc(noMock(l.o.vendor_name))} · ${rs(l.o.price)}</small></span>
+      <span class="qty"><button type="button" data-q="${i}|-1" aria-label="Less">−</button>${l.qty}<button type="button" data-q="${i}|1" aria-label="More">+</button></span></div>`).join("")
+      : '<p class="empty" style="font-size:.88rem">Add green upgrades from the marketplace.</p>'}
+    <label class="check"><input type="checkbox" id="usePts" ${usePts ? "checked" : ""}> 🪙 Use Green Points (1 point = ₹1, max ${S4.rules.max_points_discount_pct}%)</label>
+    <div class="money"><div><span>Subtotal</span><span>${rs(sub)}</span></div><div class="d"><span>Green Points</span><span>−${rs(disc)}</span></div>
+      <div><span>GST ${S4.rules.gst_pct}%</span><span>${rs(gst)}</span></div><div class="t"><span>Total (est.)</span><span>${rs(sub - disc + gst)}</span></div></div>
+    <button class="bigbtn" id="placeOrder" style="width:100%;justify-content:center;margin-top:10px" ${lines.length ? "" : "disabled"}><span class="e">✅</span>Place order</button>
+    <p class="demo" style="margin:6px 0 0">One invoice per vendor · demo order, no real payment is processed.</p><div id="cartFlash"></div>`;
+}
+$("cart").addEventListener("click", async e => {
+  const q = e.target.closest("[data-q]");
+  if (q) { const [i, d] = q.dataset.q.split("|").map(Number); CART[i].qty += d; if (CART[i].qty < 1) CART.splice(i, 1); return renderCart(); }
+  if (e.target.closest("#placeOrder")) {
+    try {
+      const r = await api("/api/impact/orders", { method: "POST", body: JSON.stringify({ items: CART, use_points: $("usePts").checked }) });
+      CART = []; await refreshImpact();
+      p4Flash("cartFlash", `🎉 ${r.orders.map(o => o.invoice_no).join(", ")} placed.`);
+      showInvoice(r.orders[0].id);
+    } catch (err) { p4Flash("cartFlash", "😅 " + esc(err.message), "bad"); }
+  }
+});
+$("cart").addEventListener("change", e => { if (e.target.id === "usePts") renderCart(); });
+
+/* --- orders + invoice --- */
+function renderOrders() {
+  const os = S4.orders;
+  $("p4Orders").classList.add("orders");
+  $("p4Orders").innerHTML = os.length ? os.map(o => {
+    const at = ORDER_STEPS.findIndex(([k]) => k === o.status);
+    return `<article class="post"><div class="phead"><span class="emo i" aria-hidden="true">🧾</span>
+      <span class="nm">${o.invoice_no} · ${esc(o.vendor_name)}<small>${o.lines.map(l => `${esc(l.name)} x${l.qty}`).join(", ")} · ${o.source === "agents" ? "🧠 agents' order" : "🛒 marketplace"}</small></span>
+      <span class="tagp y">${rs(o.total)}</span></div>
+      <div class="ostep">${ORDER_STEPS.map(([k, l], i) => `<span class="${i <= at ? "done" : i === at + 1 ? "now" : ""}">${l}</span>`).join("")}</div>
+      <div class="pact"><button class="white small" data-inv="${o.id}">📄 View invoice</button>
+        ${o.status !== "delivered" ? `<button class="small" data-adv="${o.id}">⏭️ Simulate: ${ORDER_STEPS[at + 1][1]}</button>`
+          : `<span class="tagp">+${o.lines.reduce((a, l) => a + l.points * l.qty, 0)} Green Points · ledger updated · energy profile updated</span>`}</div></article>`;
+  }).join("") : '<p class="empty">No orders yet. Approve the agents\' order or check out from the GreenLoop Marketplace.</p>';
+}
+$("p4Orders").addEventListener("click", async e => {
+  const v = e.target.closest("[data-inv]"); if (v) return showInvoice(v.dataset.inv);
+  const a = e.target.closest("[data-adv]"); if (!a) return;
+  a.disabled = true;
+  try { await api(`/api/impact/orders/${a.dataset.adv}/advance`, { method: "POST" }); } catch (err) { alert(err.message); }
+  await refreshImpact(); renderDashboard();
+});
+
+function invoiceHTML(o) {
+  return `<div class="inv"><h3>🧾 Tax invoice ${o.invoice_no}</h3>
+    <div class="meta"><span>Date: ${o.date}<br>Buyer: <b>${esc(o.buyer)}</b></span><span>Vendor: <b>${esc(o.vendor_name)}</b><br>Status: ${o.status.replace("_", " ")}</span></div>
+    <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead><tbody>
+      ${o.lines.map(l => `<tr><td>${esc(l.name)}</td><td>${l.qty}</td><td>${rs(l.price)}</td><td>${rs(l.price * l.qty)}</td></tr>`).join("")}
+      <tr><td colspan="3">Subtotal</td><td>${rs(o.subtotal)}</td></tr>
+      <tr><td colspan="3">Green Points discount (1 point = ₹1)</td><td>−${rs(o.discount)}</td></tr>
+      <tr><td colspan="3">Taxable value</td><td>${rs(o.taxable)}</td></tr>
+      <tr><td colspan="3">GST ${o.gst_pct}%</td><td>${rs(o.gst)}</td></tr>
+      <tr class="tot"><td colspan="3">Total</td><td>${rs(o.total)}</td></tr></tbody></table>
+    <div class="demo-stamp">Demo invoice - no real payment</div>
+    <p class="demo">All vendors and prices are mock. CirKit's 8% commission is paid by the vendor and is not on this invoice.</p></div>`;
+}
+function showInvoice(id) {
+  const o = S4.orders.find(x => x.id === id); if (!o) return;
+  $("invoiceBody").innerHTML = invoiceHTML(o); $("invoiceDlg").dataset.id = id;
+  $("invoiceDlg").showModal ? $("invoiceDlg").showModal() : $("invoiceDlg").setAttribute("open", "");
+}
+$("invClose").onclick = () => $("invoiceDlg").close();
+$("invPrint").onclick = () => printDoc("Invoice", $("invoiceBody").innerHTML);
+
+function printDoc(title, html) {  // print only this document (Save as PDF in the print dialog)
+  const css = [...document.querySelectorAll("style")].map(s => s.textContent).join("\n");
+  const w = window.open("", "_blank");
+  if (!w) return alert("Allow pop-ups to print.");
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>${css} body{background:#fff;padding:24px}</style></head><body>${html}</body></html>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+}
+
+/* --- ledger --- */
+function renderLedger() {
+  $("ledgerTable").innerHTML = `<table class="ltable"><thead><tr><th>#</th><th>Event</th><th>Points</th><th>CO₂e</th><th>Hash</th></tr></thead><tbody>
+    ${S4.ledger.map(e => `<tr><td>${e.seq}</td><td>${esc(e.text)}<br><span class="demo">${e.at.replace("T", " ")}</span></td>
+      <td class="${e.points < 0 ? "neg" : "pos"}">${e.points > 0 ? "+" : ""}${e.points}</td><td>${e.co2_kg} kg</td>
+      <td><code title="${e.hash}">${e.hash.slice(0, 10)}…</code><br><code title="previous">↳ ${e.prev.slice(0, 6)}…</code></td></tr>`).join("")}</tbody></table>
+    <p class="demo">Showing the latest ${S4.ledger.length} of ${S4.ledger_size} entries.</p>`;
+}
+$("ledgerVerify").onclick = async () => {
+  const r = await api("/api/impact/ledger/verify");
+  p4Flash("ledgerMsg", `${r.ok ? "✅" : "❌"} ${esc(r.msg)}<br><span class="demo">Head hash: ${r.head}</span>`, r.ok ? "" : "bad");
+};
+$("ledgerTamper").onclick = async () => {
+  const r = await api("/api/impact/ledger/tamper-test", { method: "POST" });
+  p4Flash("ledgerMsg", `🧪 ${esc(r.msg)}<br>Real ledger still intact: ${r.real_ledger_ok ? "✅ yes" : "❌ no"}`, r.detected ? "" : "bad");
+};
+
+/* --- certificate --- */
+function certHTML() {
+  const sc = S4.scores, rep = S4.report, head = S4.ledger.length ? S4.ledger[0].hash : "";
+  return `<div class="certificate"><div class="medal t-${sc.tier.name}" aria-hidden="true">${MEDAL[sc.tier.name]}</div>
+    <h3>Green Kitchen Certificate</h3><div class="demo">CirKit · Revenue &amp; Impact · demo</div>
+    <div class="who">${esc(S4.buyer)}</div><div>${tierPill(sc.tier.name)} tier · ${sc.points.toLocaleString("en-IN")} Green Credit Points</div>
+    <div class="facts"><div><b>${sc.meals}</b>verified meals</div><div><b>${kg(sc.kept_kg)}</b>out of landfill</div><div><b>${kg(sc.co2_kg)}</b>CO₂e avoided (mock)</div></div>
+    <p>${esc(rep ? rep.esg_summary : "Run the impact agents and approve to add the reporter's ESG summary.")}</p>
+    <p class="demo">Issued ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })} · Green Credit Points are loyalty points, not carbon credits · figures are mock estimates</p>
+    <code>Ledger head: ${head}</code></div>`;
+}
+function renderCert() { $("cert").innerHTML = certHTML(); }
+$("certPrint").onclick = () => printDoc("Green Kitchen Certificate", certHTML());
+
+/* --- revenue: how CirKit earns --- */
+function renderRevenue() {
+  const r = S4.revenue;
+  $("revTotal").innerHTML = `${rs(r.total_rs)}<small>total monthly revenue (mock estimate)</small>`;
+  $("revStreams").innerHTML = r.streams.map((s, i) => `<div class="rs-row"><i style="background:${STREAM_COL[i]}"></i><span>${esc(s.label)}${s.live_rs ? `<small>incl. ${rs(s.live_rs)} live from this kitchen</small>` : ""}</span><b>${rs(s.rs)}</b></div>`).join("");
+  const pct = r.self_sufficiency_pct;
+  $("revSelf").innerHTML = meter("🌱 Platform self-sufficiency (revenue vs running cost)", pct, 100, pct >= 100 ? "" : "y",
+    `${rs(r.total_rs)} revenue vs ${rs(r.running_cost_rs)} running cost a month · kitchens pay a subscription, NGOs never pay`);
+  if (revChart) revChart.destroy();
+  revChart = new Chart($("revChart"), { type: "doughnut",
+    data: { labels: r.streams.map(s => s.label.split(" (")[0]), datasets: [{ data: r.streams.map(s => s.rs), backgroundColor: STREAM_COL, borderColor: "#fff", borderWidth: 3 }] },
+    options: { maintainAspectRatio: false, cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { family: "Nunito", weight: "bold" } } },
+      tooltip: { callbacks: { label: c => ` ${c.label}: ${rs(c.raw)}` } } } } });
+}
+
+/* --- government · pilot dashboard --- */
+function renderGov() {
+  const g = S4.gov;
+  $("govCity").textContent = g.city;
+  $("govBoard").innerHTML = `<table><thead><tr><th>#</th><th>Kitchen</th><th>Tier</th><th>Points</th><th>Diverted</th></tr></thead><tbody>
+    ${g.leaderboard.map((k, i) => `<tr class="${k.you ? "you" : ""}"><td>${i + 1}</td><td>${esc(k.name)}${k.you ? " ⭐ you" : ""}</td><td>${tierPill(k.tier)}</td><td>${k.points.toLocaleString("en-IN")}</td><td>${k.diverted_pct}%</td></tr>`).join("")}</tbody></table>`;
+  $("govGoal").innerHTML = meter("Our canteen", g.landfill.ours_pct, g.landfill.goal_pct, "", "Share of leftovers kept out of landfill (verified)")
+    + meter("City average (mock)", g.landfill.city_pct, g.landfill.goal_pct, "b", `Pilot target: ${g.landfill.goal_pct}% diversion`);
+  $("govNgos").innerHTML = `<table><thead><tr><th>NGO</th><th>Type</th><th>Capacity</th><th>Diet</th><th>Certified</th><th>Verified meals received</th></tr></thead><tbody>
+    ${g.ngos.map(n => `<tr><td>${esc(n.name)}</td><td>${esc(n.kind)}</td><td>${n.capacity}</td><td>${n.veg_only ? "🟢 veg only" : "veg + non-veg"}</td><td>${n.certified ? "✅ yes (mock)" : "—"}</td><td>${n.meals}</td></tr>`).join("")}</tbody></table>`;
+  $("govSummary").innerHTML = g.city_summary.map(l => `<li>${esc(l)}</li>`).join("");
+  $("govRoad").innerHTML = g.roadmap.map(l => `<li>${esc(l)}</li>`).join("");
+  if (govChart) govChart.destroy();
+  govChart = new Chart($("govChart"), { type: "bar",
+    data: { labels: g.leaderboard.map(k => noMock(k.name).replace(" (demo)", "")), datasets: [{ data: g.leaderboard.map(k => k.points),
+      backgroundColor: g.leaderboard.map(k => k.you ? "#F2A93B" : k.tier === "Gold" ? "#C9A227" : k.tier === "Silver" ? "#9AA7B3" : "#B7825C"), borderRadius: 8 }] },
+    options: { maintainAspectRatio: false, indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { ticks: { font: { size: 10 } } } } } });
+  const dest = Object.entries(g.kg_by_destination);
+  if (govDest) { govDest.destroy(); govDest = null; }
+  $("govDest").hidden = !dest.length;
+  if (dest.length) govDest = new Chart($("govDest"), { type: "doughnut",
+    data: { labels: dest.map(([k]) => ({ ngo: "people (NGO)", animal_feed: "animal feed", biodiesel: "biodiesel (oil)" }[k] || k)), datasets: [{ data: dest.map(([, v]) => v), backgroundColor: ["#43704A", "#8A6A56", "#F2A93B", "#7FB2E5", "#BC4B67", "#C2A48F"], borderColor: "#fff", borderWidth: 3 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 12 } } } } });
+}
+
+/* ---------------- sidebar footer ---------------- */
 $("saveApi").onclick = () => { API = $("apiInput").value.trim().replace(/\/$/, ""); localStorage.setItem("cirkit_api", API); load(); };
 $("resetBtn").onclick = async () => {
-  if (!confirm("Reset the demo to 1–10 September?")) return;
+  if (!confirm("Reset the demo to 1–10 September? (Resets Pillars 1, 2, 3 and 4.)")) return;
   await api("/api/reset", { method: "POST" }); lastAdded = null;
   $("trace").innerHTML = '<li class="empty" style="animation:none">Press "Run planning agents" to watch them think.</li>';
   $("planCard").innerHTML = '<h2>Today\'s plan</h2><p class="empty">The cooking and buying plan will appear here.</p>';
-  $("outcomeCard").hidden = true; load();
+  $("p2Trace").innerHTML = '<li class="empty" style="animation:none">Press "Run expiry agents" to scan every batch.</li>';
+  $("p2PlanCard").innerHTML = '<h2>Routing plan</h2><p class="empty">The agents\' plan for at-risk food will appear here.</p>';
+  $("p2Flash").innerHTML = ""; $("p3Flash").innerHTML = "";
+  $("p3Trace").innerHTML = '<li class="empty" style="animation:none">Post some food to watch the safety, matcher, router, critic and outreach agents work.</li>';
+  $("p4Trace").innerHTML = '<li class="empty" style="animation:none">collector → verifier → scorer → green upgrade advisor → procurement → critic → manager approval → reporter</li>';
+  CART = [];
+  $("outcomeCard").hidden = true; FOCUS = ""; chatOpen = false; await load();
 };
-load();
+
+setMode(new URLSearchParams(location.search).get("mode") === "recycle" ? "recycle" : "donate");
+let startTab = location.hash.slice(1);
+try { startTab = startTab || localStorage.getItem("cirkit_tab"); } catch (e) {}
+load().then(() => showTab(Object.keys(PAGES).includes(startTab) ? startTab : "dashboard"));
+showTab(Object.keys(PAGES).includes(startTab) ? startTab : "dashboard");
 </script>
 </body>
 </html>

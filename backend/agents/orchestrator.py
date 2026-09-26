@@ -6,7 +6,7 @@ Also closes the day: simulates what really happened, updates stock, rolls the qu
 from core.data import CALENDAR, DISHES, INGREDIENTS
 from core.simulator import simulate_day, usual_habits
 
-from . import graph
+from . import expiry_orchestrator, graph
 
 
 def plan_day(state, stress=False):
@@ -26,6 +26,7 @@ def approve_order(state):
     if not state.approved_order:
         for l in state.plan["ingredients"]:
             state.stock[l["item"]] = state.stock.get(l["item"], 0) + l["order"]
+        expiry_orchestrator.on_order_approved(state, state.plan["ingredients"])  # Pillar 2: tag new batches
         state.approved_order = True
         state.save()
     by_vendor = {}
@@ -51,6 +52,7 @@ def close_day(state):
 
     for l in plan["ingredients"]:  # stock used by what was cooked
         state.stock[l["item"]] = round(max(0, state.stock[l["item"]] - l["need"]), 2)
+    expiry_orchestrator.on_day_closed(state, plan["ingredients"])  # Pillar 2: batches used FEFO
 
     ours_left = sum(v["leftover"] for v in actual["dishes"].values())
     usual_left = sum(v["leftover"] for v in usual["dishes"].values())
@@ -66,6 +68,7 @@ def close_day(state):
     state.impact["stockouts_avoided"] += len(usual_out) - len(ours_out)
     state.impact["money_saved"] += round(saved_money)
     dropped = state.roll(actual)
+    expiry_orchestrator.on_new_day(state)  # Pillar 2: clock moves to the next morning
     state.plan, state.approved_order = None, False
     state.save()
     return {"date": day, "footfall_forecast": plan["footfall"], "footfall_actual": actual["footfall"],

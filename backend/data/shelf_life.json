@@ -1,0 +1,35 @@
+{
+  "_about": "Pillar 2 shelf-life and safety assumptions. FSSAI-guided, NOT FSSAI-certified. Values are conservative demo assumptions for an Indian college canteen (sealed = as delivered / uncut, opened = pack opened or produce cut). A real kitchen must replace them with its own supplier labels and food-safety officer's guidance.",
+  "rules": {
+    "at_risk_hours": 48,
+    "at_risk_life_fraction": 0.5,
+    "critical_hours": 12,
+    "min_hours": {"use_first": 3, "chef_special": 4, "staff_meal": 4, "donate": 24},
+    "never_donate_opened": ["dairy", "produce", "herb", "paste"],
+    "min_donate_qty": 2,
+    "use_first_max_share": 0.1,
+    "cook_hour": 10
+  },
+  "items": {
+    "Basmati rice":        {"category": "grain",   "sealed_hours": 4320, "opened_hours": 2160, "storage": "Airtight bin on a raised rack, cool and dry.", "recipe_hint": "Jeera rice or veg pulao special"},
+    "Sona masoori rice":   {"category": "grain",   "sealed_hours": 4320, "opened_hours": 2160, "storage": "Airtight bin on a raised rack, cool and dry.", "recipe_hint": "Lemon rice or tamarind rice special"},
+    "Wheat flour":         {"category": "grain",   "sealed_hours": 1440, "opened_hours": 720,  "storage": "Sealed container, away from moisture; watch for weevils.", "recipe_hint": "Extra parathas or wheat halwa"},
+    "Toor dal":            {"category": "pulse",   "sealed_hours": 4320, "opened_hours": 2160, "storage": "Airtight container, cool and dry.", "recipe_hint": "Dal tadka or pappu special"},
+    "Moong dal":           {"category": "pulse",   "sealed_hours": 4320, "opened_hours": 2160, "storage": "Airtight container, cool and dry.", "recipe_hint": "Moong dal khichdi or pesarattu"},
+    "Onion":               {"category": "produce", "sealed_hours": 240,  "opened_hours": 24,   "storage": "Dry, airy crate away from potatoes. Cut onion: covered, in the fridge.", "recipe_hint": "Onion pakoda evening snack"},
+    "Tomato":              {"category": "produce", "sealed_hours": 96,   "opened_hours": 24,   "storage": "Single layer in a cool crate; move ripe ones to the fridge.", "recipe_hint": "Tomato rasam or thakkali chutney"},
+    "Potato":              {"category": "produce", "sealed_hours": 336,  "opened_hours": 24,   "storage": "Dark, dry sack away from onions. Peeled potato: in water, fridge.", "recipe_hint": "Aloo bonda or potato fry"},
+    "Mixed vegetables":    {"category": "produce", "sealed_hours": 72,   "opened_hours": 24,   "storage": "Fridge crisper at 4-8 °C; keep cut veg covered.", "recipe_hint": "Veg kurma or mixed-veg upma"},
+    "Green chilli":        {"category": "produce", "sealed_hours": 120,  "opened_hours": 48,  "storage": "Remove stems, store in a paper-lined box in the fridge.", "recipe_hint": "Mirchi bajji snack"},
+    "Ginger-garlic paste": {"category": "paste",   "sealed_hours": 720,  "opened_hours": 168,  "storage": "Refrigerate after opening; always use a clean, dry spoon.", "recipe_hint": "Veg fried rice special"},
+    "Coriander & mint":    {"category": "herb",    "sealed_hours": 48,   "opened_hours": 24,   "storage": "Wrap in a damp cloth, fridge; do not wash until use.", "recipe_hint": "Pudina chutney or green pulao"},
+    "Curd":                {"category": "dairy",   "sealed_hours": 72,   "opened_hours": 24,   "storage": "Fridge at 0-4 °C, lid on; never back into the fridge after service.", "recipe_hint": "Majjiga (spiced buttermilk) or curd vada"},
+    "Milk":                {"category": "dairy",   "sealed_hours": 48,   "opened_hours": 12,   "storage": "Fridge at 0-4 °C; boil once opened pouches are used.", "recipe_hint": "Paal payasam or masala chai"},
+    "Sugar":               {"category": "dry",     "sealed_hours": 8760, "opened_hours": 4320, "storage": "Airtight jar, dry.", "recipe_hint": "Kesari bath"},
+    "Cooking oil":         {"category": "dry",     "sealed_hours": 4320, "opened_hours": 1440, "storage": "Closed can, away from the stove and sunlight.", "recipe_hint": "Use in snack frying"},
+    "Ghee":                {"category": "dry",     "sealed_hours": 2880, "opened_hours": 1440, "storage": "Closed tin, cool place, clean dry ladle only.", "recipe_hint": "Ghee rice or sweet pongal"},
+    "Biryani masala":      {"category": "spice",   "sealed_hours": 4320, "opened_hours": 1440, "storage": "Airtight, away from steam and heat.", "recipe_hint": "Masala rice special"},
+    "Sambar powder":       {"category": "spice",   "sealed_hours": 4320, "opened_hours": 1440, "storage": "Airtight, away from steam and heat.", "recipe_hint": "Sambar vada special"},
+    "Salt":                {"category": "dry",     "sealed_hours": 8760, "opened_hours": 8760, "storage": "Closed jar, dry.", "recipe_hint": "Used everywhere"}
+  }
+}

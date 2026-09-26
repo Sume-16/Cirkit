@@ -1,0 +1,162 @@
+{
+  "_about": "Pillar 4 (Revenue & Impact) demo config. EVERY vendor, price, saving, CO2 figure, city kitchen and revenue number here is a MOCK ESTIMATE for the demo, not a quote and not a verified measurement. Green Credit Points are CirKit's own loyalty points, NOT carbon credits. Orders are demo orders: no real payment is processed.",
+  "buyer": "Our canteen (demo)",
+  "rules": {
+    "points_per_meal": 1,
+    "points_per_recycled_kg": 2,
+    "points_per_ev_pickup": 5,
+    "co2_per_donated_kg": 2.5,
+    "co2_per_recycled_kg": 0.6,
+    "co2_per_ev_km": 0.12,
+    "ev_saving_rs_per_km": 3,
+    "portion_kg": 0.3,
+    "donation_target_pct": 10,
+    "landfill_goal_pct": 30,
+    "max_points_discount_pct": 10,
+    "rupees_per_point": 1,
+    "max_payback_months": 36,
+    "gst_pct": 18,
+    "commission_pct": 8,
+    "spike_max_portions": 150,
+    "spike_factor": 3,
+    "max_attempts": 3,
+    "tiers": [
+      {"name": "Bronze", "min": 0},
+      {"name": "Silver", "min": 500},
+      {"name": "Gold", "min": 1500}
+    ]
+  },
+  "opening_ledger": [
+    {"kind": "opening", "text": "Opening balance (mock): pilot history before this demo", "points": 380, "co2_kg": 520}
+  ],
+  "profile": {
+    "lpg_cylinders": 18,
+    "electricity_units": 2400,
+    "fridge_age": 11,
+    "solar": false,
+    "water_kl": 60,
+    "budget": 150000
+  },
+  "categories": {
+    "electric_cooking": {"label": "Electric cooking", "emoji": "🍳"},
+    "renewable": {"label": "Renewable energy", "emoji": "☀️"},
+    "efficiency": {"label": "Energy efficiency", "emoji": "💡"},
+    "cold_chain": {"label": "Cold chain monitoring", "emoji": "🧊"},
+    "ev": {"label": "EV logistics", "emoji": "🛵"},
+    "waste_energy": {"label": "Waste to energy", "emoji": "🔥"},
+    "water": {"label": "Water saving", "emoji": "💧"},
+    "packaging": {"label": "Sustainable packaging", "emoji": "🥡"}
+  },
+  "vendors": {
+    "volt": {"name": "VoltKitchen Appliances (mock)"},
+    "induchef": {"name": "InduChef Pro (mock)"},
+    "surya": {"name": "Surya Electric Cookware (mock)"},
+    "solarchef": {"name": "SolarChef Systems (mock)"},
+    "sunharvest": {"name": "SunHarvest Energy (mock)"},
+    "greengrid": {"name": "GreenGrid Rooftops (mock)"},
+    "frostsmart": {"name": "FrostSmart Cold Chain (mock)"},
+    "ecowatt": {"name": "EcoWatt Solutions (mock)"},
+    "sensekitchen": {"name": "SenseKitchen IoT (mock)"},
+    "ecoroute": {"name": "EcoRoute EV Mobility (mock)"},
+    "chargeup": {"name": "ChargeUp Mobility (mock)"},
+    "bioloop": {"name": "BioLoop Biogas (mock)"},
+    "mitti": {"name": "Mitti Composting Systems (mock)"},
+    "aquasave": {"name": "AquaSave Kitchens (mock)"},
+    "bluedrop": {"name": "BlueDrop Systems (mock)"},
+    "greenpack": {"name": "GreenPack Supplies (mock)"},
+    "leafware": {"name": "LeafWare Packaging (mock)"}
+  },
+  "products": [
+    {"key": "induction_35", "name": "Commercial induction cooktop 3.5 kW", "category": "electric_cooking", "replaces": "LPG", "effect": {"lpg_cylinders": -1},
+     "offers": [["volt", 38000, 5, 4.4, 2600, 60, 120], ["induchef", 42500, 3, 4.7, 2800, 62, 150], ["surya", 35500, 8, 4.1, 2500, 58, 100]]},
+    {"key": "induction_wok", "name": "Induction wok range", "category": "electric_cooking", "replaces": "LPG", "effect": {"lpg_cylinders": -1.5},
+     "offers": [["volt", 68000, 7, 4.3, 3400, 80, 180], ["induchef", 74000, 4, 4.8, 3600, 84, 220]]},
+    {"key": "rice_cooker_60", "name": "Electric bulk rice cooker 60 L", "category": "electric_cooking", "replaces": "LPG", "effect": {"lpg_cylinders": -1},
+     "offers": [["surya", 52000, 6, 4.2, 2900, 70, 150], ["volt", 56000, 5, 4.5, 3000, 72, 160]]},
+    {"key": "tilting_kettle", "name": "Electric tilting kettle 100 L", "category": "electric_cooking", "replaces": "LPG", "effect": {"lpg_cylinders": -3},
+     "offers": [["induchef", 185000, 14, 4.6, 6500, 150, 400], ["surya", 172000, 18, 4.2, 6200, 145, 350]]},
+    {"key": "combi_oven", "name": "Electric combi oven 10-tray", "category": "electric_cooking", "replaces": "LPG", "effect": {"lpg_cylinders": -3},
+     "offers": [["volt", 390000, 21, 4.5, 7800, 170, 600], ["induchef", 415000, 15, 4.8, 8200, 178, 700]]},
+
+    {"key": "solar_5kw", "name": "Rooftop solar 5 kW", "category": "renewable", "replaces": "grid", "effect": {"solar": true, "electricity_units": -600},
+     "offers": [["greengrid", 265000, 20, 4.6, 5200, 420, 500], ["sunharvest", 249000, 25, 4.3, 5000, 410, 450], ["solarchef", 279000, 15, 4.7, 5300, 425, 550]]},
+    {"key": "solar_10kw", "name": "Rooftop solar 10 kW", "category": "renewable", "replaces": "grid", "effect": {"solar": true, "electricity_units": -1200},
+     "offers": [["greengrid", 495000, 25, 4.6, 10300, 830, 1000], ["sunharvest", 472000, 30, 4.3, 10000, 820, 900]]},
+    {"key": "solar_water_heater", "name": "Solar water heater 500 L", "category": "renewable", "replaces": "LPG", "effect": {"lpg_cylinders": -1},
+     "offers": [["solarchef", 98000, 10, 4.5, 3800, 95, 250], ["sunharvest", 91000, 12, 4.2, 3600, 92, 220]]},
+    {"key": "solar_dryer", "name": "Solar food dryer", "category": "renewable", "replaces": "grid", "effect": {"electricity_units": -80},
+     "offers": [["solarchef", 45000, 9, 4.4, 1200, 30, 120], ["greengrid", 49000, 7, 4.5, 1250, 31, 130]]},
+    {"key": "solar_cold_room", "name": "Solar-powered cold room 2 tonne", "category": "renewable", "replaces": "diesel", "effect": {"electricity_units": -500},
+     "offers": [["sunharvest", 620000, 35, 4.4, 9500, 640, 900], ["solarchef", 655000, 28, 4.7, 9900, 660, 1000]]},
+
+    {"key": "fridge_5star", "name": "5-star commercial fridge 1000 L", "category": "efficiency", "replaces": "grid", "effect": {"fridge_age": 0, "electricity_units": -250},
+     "offers": [["frostsmart", 118000, 7, 4.6, 2400, 160, 250], ["ecowatt", 109000, 10, 4.2, 2300, 155, 220]]},
+    {"key": "bldc_fans", "name": "BLDC exhaust fans (set of 4)", "category": "efficiency", "replaces": "grid", "effect": {"electricity_units": -150},
+     "offers": [["ecowatt", 26000, 4, 4.5, 1500, 110, 90], ["frostsmart", 28500, 6, 4.3, 1550, 112, 100]]},
+    {"key": "led_kit", "name": "LED kitchen lighting kit", "category": "efficiency", "replaces": "grid", "effect": {"electricity_units": -90},
+     "offers": [["ecowatt", 14000, 3, 4.6, 900, 70, 60], ["frostsmart", 15500, 5, 4.2, 920, 72, 60]]},
+    {"key": "hr_dishwasher", "name": "Heat-recovery dishwasher", "category": "efficiency", "replaces": "grid", "effect": {"electricity_units": -350, "water_kl": -6},
+     "offers": [["frostsmart", 245000, 14, 4.7, 4200, 210, 380], ["ecowatt", 229000, 18, 4.3, 4000, 200, 340]]},
+    {"key": "smart_meter", "name": "Smart energy meter", "category": "efficiency", "replaces": "grid", "effect": {"electricity_units": -60},
+     "offers": [["ecowatt", 9500, 3, 4.4, 700, 45, 50], ["frostsmart", 11000, 4, 4.5, 750, 47, 60]]},
+
+    {"key": "iot_temp_kit", "name": "IoT temperature sensor kit", "category": "cold_chain", "replaces": "grid", "effect": {},
+     "offers": [["sensekitchen", 18000, 4, 4.7, 1400, 25, 80], ["frostsmart", 21000, 5, 4.4, 1450, 26, 90]]},
+    {"key": "door_alarm", "name": "Smart fridge door alarm", "category": "cold_chain", "replaces": "grid", "effect": {},
+     "offers": [["sensekitchen", 4500, 2, 4.5, 450, 12, 30], ["frostsmart", 5200, 3, 4.3, 460, 12, 35]]},
+
+    {"key": "ev_cargo_3w", "name": "Electric cargo 3-wheeler", "category": "ev", "replaces": "diesel", "effect": {"ev_bonus_pct": 40},
+     "offers": [["ecoroute", 355000, 21, 4.6, 7200, 260, 500], ["chargeup", 339000, 28, 4.3, 7000, 250, 450]]},
+    {"key": "ev_scooter_box", "name": "EV scooter with insulated food box", "category": "ev", "replaces": "diesel", "effect": {"ev_bonus_pct": 20},
+     "offers": [["chargeup", 118000, 10, 4.5, 2600, 95, 200], ["ecoroute", 124000, 7, 4.7, 2700, 98, 220]]},
+    {"key": "ev_charger", "name": "EV charging point", "category": "ev", "replaces": "diesel", "effect": {"ev_bonus_pct": 5},
+     "offers": [["chargeup", 42000, 6, 4.6, 900, 30, 80], ["ecoroute", 46000, 5, 4.4, 920, 31, 90]]},
+
+    {"key": "biogas_50", "name": "On-site biogas unit 50 kg/day", "category": "waste_energy", "replaces": "LPG", "effect": {"lpg_cylinders": -2},
+     "offers": [["bioloop", 185000, 20, 4.6, 4200, 210, 450], ["mitti", 198000, 18, 4.3, 4000, 200, 400]]},
+    {"key": "composter", "name": "Organic waste composter", "category": "waste_energy", "replaces": "diesel", "effect": {},
+     "offers": [["mitti", 95000, 12, 4.5, 1600, 120, 250], ["bioloop", 102000, 10, 4.4, 1650, 122, 260]]},
+
+    {"key": "prerinse_valve", "name": "Low-flow pre-rinse spray valve", "category": "water", "replaces": "water", "effect": {"water_kl": -4},
+     "offers": [["aquasave", 6500, 3, 4.5, 800, 8, 40], ["bluedrop", 5900, 5, 4.2, 760, 8, 35]]},
+    {"key": "aerators", "name": "Tap aerators kit (x10)", "category": "water", "replaces": "water", "effect": {"water_kl": -2},
+     "offers": [["bluedrop", 2800, 2, 4.4, 450, 4, 20], ["aquasave", 3200, 2, 4.6, 470, 4, 25]]},
+    {"key": "greywater", "name": "Greywater filter", "category": "water", "replaces": "water", "effect": {"water_kl": -10},
+     "offers": [["aquasave", 78000, 14, 4.5, 1900, 18, 160], ["bluedrop", 72000, 16, 4.2, 1800, 17, 140]]},
+
+    {"key": "compostable_1000", "name": "Compostable containers x1000", "category": "packaging", "replaces": "plastic", "effect": {},
+     "offers": [["greenpack", 7800, 4, 4.4, 300, 15, 40], ["leafware", 7200, 6, 4.2, 280, 14, 35]]},
+    {"key": "steel_tiffin_100", "name": "Reusable steel tiffin set x100", "category": "packaging", "replaces": "plastic", "effect": {},
+     "offers": [["leafware", 32000, 7, 4.7, 1800, 40, 120], ["greenpack", 34500, 5, 4.5, 1850, 41, 130]]}
+  ],
+  "revenue": {
+    "subscription_rs": 4999,
+    "subscribed_kitchens": 25,
+    "network_commission_rs": 38000,
+    "report_fee_rs": 12000,
+    "reports_per_month": 4,
+    "gov_licence_rs": 60000,
+    "recycler_rs_per_kg": 1.5,
+    "network_recycled_kg": 6000,
+    "running_cost_rs": 260000
+  },
+  "city": {
+    "name": "Hyderabad pilot (mock)",
+    "baseline_diverted_pct": 22,
+    "kitchens": [
+      {"name": "Sri Sai College Canteen (mock)", "points": 1840, "diverted_pct": 34, "meals": 2100},
+      {"name": "Green Leaf Cafeteria (mock)", "points": 1290, "diverted_pct": 29, "meals": 1450},
+      {"name": "Annapoorna Caterers (mock)", "points": 960, "diverted_pct": 26, "meals": 1180},
+      {"name": "Techpark Food Court (mock)", "points": 720, "diverted_pct": 21, "meals": 860},
+      {"name": "Hostel Mess Block C (mock)", "points": 540, "diverted_pct": 19, "meals": 640},
+      {"name": "Spice Route Restaurant (mock)", "points": 310, "diverted_pct": 14, "meals": 300}
+    ]
+  },
+  "roadmap": [
+    "Property-tax and waste-fee rebates for Gold kitchens (with GHMC)",
+    "Priority in government catering tenders for Silver and Gold kitchens",
+    "Carbon-credit conversion via India's CCTS or Verra, only after third-party verification",
+    "Alignment with MoEFCC's Green Credit Programme",
+    "IoT sensors for automatic LPG, energy and fridge-temperature readings"
+  ]
+}
